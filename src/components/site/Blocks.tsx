@@ -3,6 +3,10 @@ import type { ReactNode } from "react";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export function DraftBadge({ children = "Draft · sample content" }: { children?: ReactNode }) {
+  return <span className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1 text-xs font-bold text-navy"><Sparkles className="h-3 w-3" />{children}</span>;
+}
+
 export function PageHero({ eyebrow, title, intro, children }: { eyebrow: string; title: string; intro?: string; children?: ReactNode }) {
   return (
     <section className="surface-navy relative overflow-hidden">

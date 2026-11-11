@@ -4,7 +4,7 @@ import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import heroImg from "@/assets/hero-stage.jpg";
 import studioImg from "@/assets/studio.jpg";
 import { Button } from "@/components/ui/button";
-import { AwaitingContent, Section, meta } from "@/components/site/Blocks";
+import { AwaitingContent, DraftBadge, Section, meta } from "@/components/site/Blocks";
 import { NewsletterForm } from "@/components/site/Forms";
 import { articles, editions, focusAreas, partners, site, speakers, stats, upcomingSummit } from "@/content/site";
 
@@ -101,7 +101,7 @@ function Home() {
           <div className="grid gap-6 md:grid-cols-3">
             {editions.map((e) => (
               <Link key={e.year} to="/summits/$year" params={{ year: String(e.year) }} className="group rounded-3xl border bg-card p-8 shadow-card transition hover:-translate-y-2 hover:rotate-1">
-                <div className="font-display text-5xl font-bold text-navy">{e.year}</div>
+                <div className="flex items-start justify-between"><div className="font-display text-5xl font-bold text-navy">{e.year}</div>{e.draft && <DraftBadge>Draft</DraftBadge>}</div>
                 <p className="eyebrow mt-3 text-blue">{e.edition}</p>
                 <p className="mt-3 font-medium">{e.theme}</p>
               </Link>

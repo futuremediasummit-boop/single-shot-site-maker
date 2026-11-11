@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BecomeAPartnerRouteImport } from './routes/become-a-partner'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -48,6 +49,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BecomeAPartnerRoute = BecomeAPartnerRouteImport.update({
@@ -194,6 +200,7 @@ const TicketTokenRoute = TicketTokenRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRouteWithChildren
+  '/admin': typeof AdminRoute
   '/become-a-partner': typeof BecomeAPartnerRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/become-a-partner': typeof BecomeAPartnerRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
@@ -254,6 +262,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRouteWithChildren
+  '/admin': typeof AdminRoute
   '/become-a-partner': typeof BecomeAPartnerRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/become-a-partner'
     | '/checkout'
     | '/contact'
@@ -319,6 +329,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/become-a-partner'
     | '/checkout'
     | '/contact'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/become-a-partner'
     | '/checkout'
     | '/contact'
@@ -380,6 +392,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRouteWithChildren
+  AdminRoute: typeof AdminRoute
   BecomeAPartnerRoute: typeof BecomeAPartnerRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
@@ -411,6 +424,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/become-a-partner': {
@@ -684,6 +704,7 @@ const SummitsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRouteWithChildren,
+  AdminRoute: AdminRoute,
   BecomeAPartnerRoute: BecomeAPartnerRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
