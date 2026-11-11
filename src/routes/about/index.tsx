@@ -12,7 +12,7 @@ const themes = ["Media innovation", "Professional development", "Collaboration",
 function About() {
   return (
     <>
-      <PageHero eyebrow="About us" title="A permanent home for the media industry’s biggest questions." intro="Future Media Summit convenes the people building tomorrow’s media — before, during and long after each annual summit." />
+      <PageHero eyebrow="About us" title="We’re all about the future of media." intro="Future Media Summit brings media lovers together — at our yearly summit and all year round." />
       <Section>
         <div className="grid gap-12 md:grid-cols-2">
           <div><p className="eyebrow text-blue">Mission</p><p className="mt-4 text-2xl font-display font-semibold">To be published by the summit office.</p><p className="mt-3 text-muted-foreground">Our official mission statement will appear here once approved.</p></div>

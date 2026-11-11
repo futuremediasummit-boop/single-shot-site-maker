@@ -13,13 +13,13 @@ const audience = ["Journalists & editors", "Broadcasters", "Content creators", "
 function Summit() {
   return (
     <>
-      <PageHero eyebrow="The summit" title="Where media’s next chapter takes shape." intro="An annual gathering of the professionals, institutions and innovators transforming how stories are told, funded and shared.">
+      <PageHero eyebrow="The summit" title="A day to learn, connect and get inspired." intro="Talks, workshops and good conversations with people changing how stories are told and shared.">
         <div className="flex flex-wrap gap-4"><Button asChild variant="gold" size="xl"><Link to="/tickets">Get tickets</Link></Button><Button asChild variant="onDark" size="xl"><Link to="/become-a-partner">Partner with us</Link></Button></div>
       </PageHero>
       <Section eyebrow="Focus areas" title="Areas of discussion">
         <div className="flex flex-wrap gap-3">{focusAreas.map((f) => (<span key={f} className="rounded-full border border-input bg-card px-5 py-2.5 text-sm font-medium">{f}</span>))}</div>
       </Section>
-      <Section tone="navy" eyebrow="Who attends" title="Built for the whole media ecosystem">
+      <Section tone="navy" eyebrow="Who attends" title="Who’s it for? Pretty much everyone in media">
         <div className="grid gap-px overflow-hidden rounded-lg bg-navy-foreground/10 sm:grid-cols-2 lg:grid-cols-4">{audience.map((a) => (<div key={a} className="surface-navy p-8 font-display font-semibold">{a}</div>))}</div>
       </Section>
       <Section eyebrow="Programme" title="Sessions, keynotes & workshops">

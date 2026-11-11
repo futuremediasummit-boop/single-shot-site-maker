@@ -43,7 +43,7 @@ export function AwaitingContent({ title, body, action, dark }: { title: string; 
       <h3 className="mt-5 text-xl font-semibold">{title}</h3>
       <p className={cn("mx-auto mt-3 max-w-lg", dark ? "text-navy-foreground/65" : "text-muted-foreground")}>{body}</p>
       {action && (
-        <Link to={action.to} className="mt-6 inline-block text-sm font-semibold uppercase tracking-[0.14em] text-blue hover:underline">
+        <Link to={action.to} className="mt-6 inline-block text-sm font-semibold text-blue hover:underline">
           {action.label} →
         </Link>
       )}

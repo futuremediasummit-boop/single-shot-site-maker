@@ -36,13 +36,13 @@ function Home() {
         <img src={heroImg} alt="Speaker addressing a summit audience beneath a global network display" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover opacity-70" />
         <div className="bg-hero-fade absolute inset-0" />
         <div className="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col justify-end px-5 pb-16 pt-32 lg:px-8">
-          <p className="eyebrow animate-rise text-gold">{s ? `${s.edition} · ${s.year}` : "The international media industry platform"}</p>
+          <p className="eyebrow animate-rise text-gold">{s ? `${s.edition} · ${s.year}` : "Hey, media people 👋"}</p>
           <h1 className="mt-6 animate-rise text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-7xl lg:text-8xl">FUTURE<br />MEDIA SUMMIT</h1>
           <p className="mt-6 max-w-2xl animate-rise font-display text-xl italic text-navy-foreground/85 sm:text-2xl">“{site.tagline}”</p>
-          <p className="mt-5 max-w-xl animate-rise text-navy-foreground/70">A year-round home for the journalists, broadcasters, creators, technologists, policymakers and investors redefining how the world informs, entertains and connects.</p>
+          <p className="mt-5 max-w-xl animate-rise text-navy-foreground/70">A gathering for storytellers, creators, journalists, techies and big thinkers who love media and want to shape where it goes next. Come learn, connect and be inspired.</p>
           <div className="mt-10 flex flex-wrap gap-4">
-            <Button asChild variant="gold" size="xl"><Link to="/tickets">Get your ticket</Link></Button>
-            <Button asChild variant="onDark" size="xl"><Link to="/summit">Explore the summit</Link></Button>
+            <Button asChild variant="gold" size="xl"><Link to="/tickets">Grab your ticket</Link></Button>
+            <Button asChild variant="onDark" size="xl"><Link to="/summit">See what it’s about</Link></Button>
           </div>
           <div className="mt-14 border-t border-navy-foreground/15 pt-8">
             {s ? (
@@ -56,8 +56,8 @@ function Home() {
               </div>
             ) : (
               <div className="flex flex-wrap items-center justify-between gap-6">
-                <p className="max-w-lg text-navy-foreground/75"><span className="font-semibold text-gold">Next edition — details to be announced.</span> Dates, venue and theme will be published here first.</p>
-                <Link to="/summits" className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-navy-foreground hover:text-gold">Explore the archive <ArrowRight className="h-4 w-4" /></Link>
+                <p className="max-w-lg text-navy-foreground/75"><span className="font-semibold text-gold">The next summit is coming soon!</span> We’ll share the date, venue and theme here first.</p>
+                <Link to="/summits" className="inline-flex items-center gap-2 text-base font-semibold text-navy-foreground hover:text-gold">See past summits <ArrowRight className="h-4 w-4" /></Link>
               </div>
             )}
           </div>
@@ -68,11 +68,11 @@ function Home() {
         <div className="grid items-center gap-14 lg:grid-cols-2">
           <div>
             <p className="eyebrow text-blue">Who we are</p>
-            <h2 className="mt-4 text-3xl font-semibold sm:text-5xl">Where the future of media is <em className="font-medium text-blue">debated, designed</em> and decided.</h2>
+            <h2 className="mt-4 text-3xl font-semibold sm:text-5xl">A place where media people <em className="font-medium text-blue">meet, share</em> and grow together.</h2>
             <span className="gold-rule mt-8" />
-            <p className="mt-8 text-lg text-muted-foreground">Future Media Summit is a permanent platform for the media industry — convening an annual summit and sustaining the conversation in between through insight, publishing and partnership.</p>
-            <p className="mt-4 text-muted-foreground">We bring together newsrooms, broadcasters, creators, technology innovators, institutions and the emerging leaders who will shape what comes next.</p>
-            <Button asChild variant="navy" size="xl" className="mt-10"><Link to="/about">About us</Link></Button>
+            <p className="mt-8 text-lg text-muted-foreground">Future Media Summit is more than one big event. We host a yearly summit and keep the conversation going all year with stories, ideas and new connections.</p>
+            <p className="mt-4 text-muted-foreground">Whether you run a newsroom, make videos on your phone, or are just starting out — there’s a seat for you here.</p>
+            <Button asChild variant="navy" size="xl" className="mt-10"><Link to="/about">Get to know us</Link></Button>
           </div>
           <img src={studioImg} alt="Broadcast professionals working in a control room" loading="lazy" width={1600} height={1072} className="aspect-[4/3] w-full rounded-lg object-cover shadow-card" />
         </div>
@@ -86,7 +86,7 @@ function Home() {
         </Section>
       )}
 
-      <Section tone="mist" eyebrow="Annual summit timeline" title="Every edition, documented" intro="Each summit becomes a permanent chapter — sessions, speakers, galleries and reports.">
+      <Section tone="mist" eyebrow="Past summits" title="Memories from every summit" intro="Photos, talks and highlights from each year.">
         {editions.length ? (
           <div className="grid gap-6 md:grid-cols-3">
             {editions.map((e) => (
@@ -98,11 +98,11 @@ function Home() {
             ))}
           </div>
         ) : (
-          <AwaitingContent title="The archive opens with our first edition" body="Summit editions appear here as they are published by the summit office." action={{ to: "/summit", label: "About the summit" }} />
+          <AwaitingContent title="Our first summit is on the way" body="Once it happens, you’ll find all the photos and highlights right here." action={{ to: "/summit", label: "About the summit" }} />
         )}
       </Section>
 
-      <Section eyebrow="Featured speakers" title="Voices on our stage">
+      <Section eyebrow="Speakers" title="Who’s on stage">
         {speakers.length ? (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {speakers.slice(0, 8).map((sp) => (
@@ -114,25 +114,25 @@ function Home() {
             ))}
           </div>
         ) : (
-          <AwaitingContent title="Speakers to be announced" body="Confirmed keynotes, panellists and moderators will be revealed here." action={{ to: "/speakers", label: "Speaker directory" }} />
+          <AwaitingContent title="Speakers to be announced" body="We’re lining up some amazing people. Check back soon!" action={{ to: "/speakers", label: "Speaker directory" }} />
         )}
       </Section>
 
-      <Section tone="mist" eyebrow="Partners & sponsors" title="In good company">
+      <Section tone="mist" eyebrow="Partners" title="Friends of the summit">
         {partners.length ? (
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4">{partners.map((p) => (<div key={p.name} className="flex h-28 items-center justify-center rounded-lg border bg-card p-6 font-display font-semibold text-navy">{p.logo ? <img src={p.logo} alt={p.name} className="max-h-12" /> : p.name}</div>))}</div>
         ) : (
-          <AwaitingContent title="Founding partnerships now open" body="Organisations shaping the media landscape are invited to partner with the summit." action={{ to: "/become-a-partner", label: "Partner with us" }} />
+          <AwaitingContent title="Want to work with us?" body="We’d love to team up with brands and organisations who care about media." action={{ to: "/become-a-partner", label: "Partner with us" }} />
         )}
       </Section>
 
-      <Section eyebrow="News & insights" title="From the newsroom">
+      <Section eyebrow="Latest news" title="What’s new">
         {articles.length ? (
           <div className="grid gap-8 md:grid-cols-3">{articles.slice(0, 3).map((a) => (
             <Link key={a.slug} to="/news/$slug" params={{ slug: a.slug }} className="group border-t-2 border-navy pt-6"><p className="eyebrow text-blue">{a.category}</p><h3 className="mt-3 text-xl font-semibold group-hover:text-blue">{a.title}</h3><p className="mt-3 text-sm text-muted-foreground">{a.excerpt}</p></Link>
           ))}</div>
         ) : (
-          <AwaitingContent title="Insights coming soon" body="Announcements, interviews and industry analysis will be published here." action={{ to: "/news", label: "Visit the newsroom" }} />
+          <AwaitingContent title="Stories coming soon" body="News, interviews and fresh ideas will land here soon." action={{ to: "/news", label: "Visit the newsroom" }} />
         )}
       </Section>
 
@@ -140,8 +140,8 @@ function Home() {
         <div className="grid-lines absolute inset-0 opacity-50" />
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-24 lg:grid-cols-2 lg:px-8">
           <div>
-            <p className="eyebrow text-gold">Stay informed</p>
-            <h2 className="mt-4 text-3xl font-semibold sm:text-5xl">Be first to hear about the next edition.</h2>
+            <p className="eyebrow text-gold">Don’t miss out</p>
+            <h2 className="mt-4 text-3xl font-semibold sm:text-5xl">Get the news first — straight to your inbox.</h2>
           </div>
           <div className="lg:justify-self-end"><NewsletterForm /></div>
         </div>

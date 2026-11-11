@@ -6,7 +6,7 @@ export const Route = createFileRoute("/contact")({
   head: () => meta("Contact Us", "Get in touch with the Future Media Summit office."),
   component: () => (
     <>
-      <PageHero eyebrow="Contact" title="Talk to the summit office." />
+      <PageHero eyebrow="Contact" title="Say hello 👋" />
       <Section>
         <div className="grid gap-12 lg:grid-cols-[1fr_2fr]">
           <div className="space-y-6">
