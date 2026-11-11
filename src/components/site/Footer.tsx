@@ -18,6 +18,7 @@ export function Footer() {
             <Logo />
             <p className="mt-6 max-w-xs font-display text-sm italic text-navy-foreground/70">“{site.tagline}”</p>
             {site.contact.email && <p className="mt-4 text-sm text-navy-foreground/70">{site.contact.email}</p>}
+            {site.social.length > 0 && <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2">{site.social.map((s) => (<li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-navy-foreground/70 hover:text-gold">{s.label}</a></li>))}</ul>}
           </div>
           {cols.map((c) => (
             <div key={c.title}>

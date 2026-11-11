@@ -22,3 +22,8 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Admin & publishing
+- Open `/admin`. Everything (stories, summits, speakers, partners, press, leadership, tickets, site settings) is edited from the UI. No code editing.
+- Edits are kept as a draft; the **Publish** button puts everything marked Published on the live site.
+- Storage lives in ONE file: `src/lib/content-backend.ts`. It currently uses browser storage; swap in the Supabase version sketched there when ready.

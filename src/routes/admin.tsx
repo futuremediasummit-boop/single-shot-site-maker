@@ -1,22 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState, type ComponentType } from "react";
-import { CalendarDays, ClipboardCheck, Copy, Crown, FileText, Globe, Handshake, LayoutDashboard, Megaphone, Newspaper, Pencil, Plus, Rocket, Search, ShieldAlert, Sparkles, Ticket, Trash2 } from "lucide-react";
+import { CalendarDays, ClipboardCheck, Crown, FileText, Globe, Handshake, LayoutDashboard, Megaphone, Newspaper, Pencil, Plus, Rocket, Search, Settings, Sparkles, Ticket, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ItemEditor, ShareBox } from "@/components/admin/AdminParts";
-import { LivePublish } from "@/components/admin/LivePublish";
+import { PublishButton, PublishPanel } from "@/components/admin/PublishPanel";
+import { SettingsEditor } from "@/components/admin/SettingsEditor";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { collections, copyText, exportCode, useAdminStore, type Collection, type CollectionKey, type Item } from "@/lib/admin-store";
+import { collections, useAdminStore, type Collection, type CollectionKey, type Item } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin | Future Media Summit" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: Admin,
 });
 
-type View = "overview" | CollectionKey | "publish" | "checkin";
+type View = "overview" | CollectionKey | "settings" | "publish" | "checkin";
 type Icon = ComponentType<{ className?: string }>;
 const icons: Record<CollectionKey, Icon> = { news: Newspaper, summits: CalendarDays, speakers: Megaphone, partners: Handshake, press: FileText, team: Crown, tickets: Ticket };
 const tints = ["bg-mint/50", "bg-sky/50", "bg-gold/40", "bg-blue/15", "bg-mist"];
@@ -41,6 +42,7 @@ function Admin() {
   const nav: { id: View; label: string; icon: Icon; count?: number }[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     ...collections.map((c) => ({ id: c.key as View, label: c.label, icon: icons[c.key], count: store.data[c.key].length })),
+    { id: "settings", label: "Site settings", icon: Settings },
     { id: "checkin", label: "Check-in", icon: ClipboardCheck },
     { id: "publish", label: "Publish", icon: Rocket },
   ];
@@ -63,19 +65,18 @@ function Admin() {
             </button>
           ))}
         </nav>
+        <div className="relative hidden px-4 pb-8 lg:block"><PublishButton dirty={store.dirty} busy={store.publishing} publish={store.publish} className="w-full" /></div>
       </aside>
 
       <main className="min-w-0 px-4 py-6 sm:px-8 lg:py-10">
-        <div className="mb-8 flex gap-4 rounded-3xl border-2 border-gold bg-gold/20 p-5">
-          <ShieldAlert className="mt-0.5 h-6 w-6 shrink-0 text-navy" />
-          <div className="text-sm">
-            <p className="font-bold">No login yet: edits are saved in this browser until you press Publish.</p>
-            <p className="mt-1 text-muted-foreground">You can write, edit and organise everything here. To put it on the live site use the <button type="button" className="font-bold text-blue underline" onClick={() => setView("publish")}>Publish tab</button>. Real accounts and one-click publishing need the database (Lovable Cloud).</p>
-          </div>
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-3xl border bg-card p-4 shadow-card">
+          <p className="text-sm font-bold">{store.dirty ? <span className="text-destructive">● You have changes that aren’t live yet.</span> : <span className="text-blue">✓ Everything is up to date.</span>}</p>
+          <PublishButton dirty={store.dirty} busy={store.publishing} publish={store.publish} size="sm" />
         </div>
         {!store.ready ? <p className="text-muted-foreground">Loading…</p>
           : view === "overview" ? <Overview store={store} go={setView} />
-          : view === "publish" ? <Publish data={store.data} reset={store.reset} replaceAll={store.replaceAll} />
+          : view === "settings" ? <SettingsEditor settings={store.settings} onSave={store.saveSettings} />
+          : view === "publish" ? <PublishPanel dirty={store.dirty} busy={store.publishing} publishedAt={store.publishedAt} publish={store.publish} />
           : view === "checkin" ? <CheckIn />
           : active ? <CollectionView key={active.key} col={active} store={store} /> : null}
       </main>
@@ -95,10 +96,10 @@ function Overview({ store, go }: { store: Store; go: (v: View) => void }) {
         <div className="blob animate-drift -bottom-20 left-1/3 h-56 w-56 bg-gold/30 [animation-delay:-5s]" />
         <p className="eyebrow relative text-gold">Welcome back 👋</p>
         <h1 className="relative mt-3 text-4xl font-extrabold sm:text-5xl">Summit control room</h1>
-        <p className="relative mt-3 max-w-xl text-navy-foreground/75">Write stories, edit the line-up and get every piece of content ready to share.</p>
+        <p className="relative mt-3 max-w-xl text-navy-foreground/75">Write stories, edit the line-up, update contact details and press Publish when you’re ready.</p>
         <div className="relative mt-6 flex flex-wrap gap-3">
           <Button variant="gold" size="lg" className="shiny" onClick={() => setEditing({ c: collections[0], i: blank(collections[0]) })}><Plus /> Write a story</Button>
-          <Button variant="onDark" size="lg" onClick={() => go("publish")}><Rocket /> Publish to the site</Button>
+          <Button variant="onDark" size="lg" onClick={() => go("publish")}><Rocket /> Go to Publish</Button>
         </div>
       </div>
 
@@ -196,41 +197,6 @@ function CollectionView({ col, store }: { col: Collection; store: Store }) {
         </div>
       )}
       {editing && <ItemEditor key={editing.id} col={col} item={editing} existing={items} open onClose={() => setEditing(null)} onSave={(it) => store.save(col.key, it)} />}
-    </div>
-  );
-}
-
-function Publish({ data, reset, replaceAll }: { data: Store["data"]; reset: () => void; replaceAll: Store["replaceAll"] }) {
-  return (
-    <div className="animate-pop space-y-8">
-      <LivePublish data={data} replaceAll={replaceAll} />
-      <details className="rounded-3xl border bg-card p-5"><summary className="cursor-pointer font-bold">Manual copy-paste method (backup)</summary><div className="mt-5"><ManualPublish data={data} reset={reset} /></div></details>
-    </div>
-  );
-}
-
-function ManualPublish({ data, reset }: { data: Store["data"]; reset: () => void }) {
-  return (
-    <div className="animate-pop space-y-6">
-      <div><h1 className="text-3xl font-extrabold">Publish to the website</h1><p className="mt-1 max-w-2xl text-muted-foreground">Published items become real pages with their own links once this code is in your site. One-click publishing arrives with the database.</p></div>
-      <ol className="grid gap-3 sm:grid-cols-3">
-        {["Copy a block below", "In src/content/site.ts, replace the matching “export const …” block with it", "Run git push, then Publish → Update in Lovable"].map((t, i) => (
-          <li key={t} className={`flex gap-3 rounded-3xl p-5 text-sm font-bold ${tints[i]}`}><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy text-navy-foreground">{i + 1}</span>{t}</li>
-        ))}
-      </ol>
-      {collections.map((c) => {
-        const code = exportCode(c, data[c.key]); const n = data[c.key].filter((i) => i.published).length;
-        return (
-          <div key={c.key} className="rounded-3xl border bg-card p-5 shadow-card">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div><h2 className="font-bold">{c.label}</h2><p className="text-xs text-muted-foreground">{n} published item{n === 1 ? "" : "s"} · replaces <code>{c.exportName}</code></p></div>
-              <Button size="sm" onClick={() => copyText(code, `${c.label} code copied!`)}><Copy /> Copy code</Button>
-            </div>
-            <pre className="mt-3 max-h-48 overflow-auto rounded-2xl bg-navy p-4 text-xs text-navy-foreground">{code}</pre>
-          </div>
-        );
-      })}
-      <div className="rounded-3xl border bg-card p-5"><p className="text-sm text-muted-foreground">Want to wipe your browser edits and go back to the content in <code>site.ts</code>?</p><Button className="mt-3" variant="outline" size="sm" onClick={() => { if (window.confirm("Reset everything in this browser back to the built-in content?")) { reset(); toast.success("Reset."); } }}>Reset to built-in content</Button></div>
     </div>
   );
 }

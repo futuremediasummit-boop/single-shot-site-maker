@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Check, Copy, ExternalLink, Link2, Mail, MessageCircle } from "lucide-react";
+import { Check, Copy, ExternalLink, Link2, Mail, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,7 +7,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { copyText, slugify, shareUrl, type Collection, type Item } from "@/lib/admin-store";
+import { copyText, decPairs, encPairs, slugify, shareUrl, type Collection, type Item, type Pair } from "@/lib/admin-store";
+
+/** Rows of two boxes (e.g. label + number) with add / remove buttons. */
+export function PairsEditor({ rows, onChange, labels, addLabel = "Add a row" }: { rows: Pair[]; onChange: (r: Pair[]) => void; labels: [string, string]; addLabel?: string }) {
+  const upd = (i: number, k: "a" | "b", v: string) => onChange(rows.map((r, n) => (n === i ? { ...r, [k]: v } : r)));
+  return (
+    <div className="space-y-2">
+      {rows.map((r, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <Input value={r.a} maxLength={120} placeholder={labels[0]} aria-label={labels[0]} onChange={(e) => upd(i, "a", e.target.value)} />
+          <Input value={r.b} maxLength={200} placeholder={labels[1]} aria-label={labels[1]} onChange={(e) => upd(i, "b", e.target.value)} />
+          <Button type="button" size="icon" variant="ghost" aria-label="Remove row" onClick={() => onChange(rows.filter((_, n) => n !== i))}><Trash2 className="text-destructive" /></Button>
+        </div>
+      ))}
+      <Button type="button" size="sm" variant="outline" onClick={() => onChange([...rows, { a: "", b: "" }])}><Plus /> {addLabel}</Button>
+    </div>
+  );
+}
 
 /** The item’s own link, with copy, open and share buttons. */
 export function ShareBox({ item, col }: { item: Item; col: Collection }) {
@@ -31,7 +48,7 @@ export function ShareBox({ item, col }: { item: Item; col: Collection }) {
         <a className={btn} href={`https://www.linkedin.com/sharing/share-offsite/?url=${e(url)}`} target="_blank" rel="noopener noreferrer">LinkedIn</a>
         <a className={btn} href={`mailto:?subject=${e(title)}&body=${e(url)}`}><Mail className="h-3.5 w-3.5" />Email</a>
       </div>
-      {!item.published && <p className="mt-3 text-xs font-medium text-navy/70">Draft: this link shows “not found” until the story is published to the website (see the Publish tab).</p>}
+      {!item.published && <p className="mt-3 text-xs font-medium text-navy/70">Draft: this link shows “not found” until this is marked Published and you press the Publish button.</p>}
     </div>
   );
 }
@@ -97,7 +114,7 @@ export function ItemEditor({ col, item, existing, open, onClose, onSave }: {
       <DialogContent className="max-h-[92vh] max-w-6xl overflow-y-auto rounded-3xl">
         <DialogHeader>
           <DialogTitle className="text-2xl">{isNew ? `New ${col.noun}` : `Edit ${col.noun}`}</DialogTitle>
-          <DialogDescription>Changes are saved in this browser. Use the Publish tab to put them on the live website.</DialogDescription>
+          <DialogDescription>Your changes are kept as a draft. Press the Publish button when you want them on the live website.</DialogDescription>
         </DialogHeader>
         <div className={col.key === "news" ? "grid gap-8 lg:grid-cols-[1.1fr_1fr]" : ""}>
           <div className="grid content-start gap-4 sm:grid-cols-2">
@@ -111,7 +128,9 @@ export function ItemEditor({ col, item, existing, open, onClose, onSave }: {
                   ) : (
                     <>
                       <Label htmlFor={id} className="mb-2 block text-sm font-bold">{f.label}</Label>
-                      {f.kind === "textarea" || f.kind === "long" ? (
+                      {f.kind === "pairs" ? (
+                        <PairsEditor rows={decPairs(val)} labels={f.pairLabels ?? ["Label", "Value"]} onChange={(r) => set(f.name, encPairs(r))} />
+                      ) : f.kind === "textarea" || f.kind === "long" ? (
                         <Textarea id={id} rows={f.kind === "long" ? 12 : 3} maxLength={f.kind === "long" ? 20000 : 1500} value={String(val ?? "")} onChange={(e) => set(f.name, e.target.value)} />
                       ) : f.kind === "select" ? (
                         <select id={id} value={String(val ?? "")} onChange={(e) => set(f.name, e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
