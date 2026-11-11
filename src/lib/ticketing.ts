@@ -71,3 +71,25 @@ export const getTicket = createServerFn({ method: "GET" })
       event: { name: ev.name, dateLabel: ev.date_label, venue: ev.venue, city: ev.city },
     };
   });
+
+export type VerifyResult = {
+  result: "valid" | "already_used" | "wrong_event" | "not_paid" | "cancelled" | "not_found" | "bad_pin" | "error";
+  name?: string; typeName?: string; code?: string; eventName?: string; at?: string;
+};
+
+/** Door check-in. Needs the CHECKIN_PIN server secret. Accepts a ticket URL, token or TK-code. */
+export const verifyTicket = createServerFn({ method: "POST" })
+  .validator((d: { eventId: string; value: string; pin: string }) => d)
+  .handler(async ({ data }): Promise<VerifyResult> => {
+    const { rpc } = await import("./ticketing.server");
+    const { createHash, timingSafeEqual } = await import("node:crypto");
+    const expected = process.env["CHECKIN_PIN"];
+    if (!expected) return { result: "error" };
+    const h = (s: string) => createHash("sha256").update(s).digest();
+    if (!timingSafeEqual(h(String(data.pin ?? "")), h(expected))) return { result: "bad_pin" };
+    const raw = String(data.value ?? "").trim();
+    const value = (raw.split("/").filter(Boolean).pop() ?? "").split(/[?#]/)[0]!.slice(0, 64);
+    if (value.length < 6 || !data.eventId) return { result: "not_found" };
+    try { return await rpc<VerifyResult>("fms_check_in", { p_event: data.eventId, p_token: value }); }
+    catch (e) { console.error(e); return { result: "error" }; }
+  });
