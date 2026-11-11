@@ -1,47 +1,75 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { toast } from "sonner";
-import { DraftBadge, PageHero, Section, meta } from "@/components/site/Blocks";
+import { PageHero, Section, meta } from "@/components/site/Blocks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ticketTypes } from "@/content/site";
+import { formatPrice, getEvents, registerTicket } from "@/lib/ticketing";
 
 export const Route = createFileRoute("/register")({
-  validateSearch: (s: Record<string, unknown>) => ({ tier: typeof s.tier === "string" ? s.tier : undefined }),
-  head: () => meta("Register", "Register as a delegate for the Future Media Summit."),
+  validateSearch: (s: Record<string, unknown>): { event?: string; tier?: string } => ({
+    ...(typeof s["event"] === "string" ? { event: s["event"] } : {}),
+    ...(typeof s["tier"] === "string" ? { tier: s["tier"] } : {}),
+  }),
+  loader: () => getEvents(),
+  head: () => meta("Register", "Register for the Future Media Summit and get your digital ticket."),
   component: Register,
 });
 
 function Register() {
-  const { tier } = Route.useSearch();
-  const [sent, setSent] = useState(false);
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  const events = Route.useLoaderData();
+  const search = Route.useSearch();
+  const navigate = useNavigate();
+  const [eventId, setEventId] = useState(events.find((e) => e.id === search.event)?.id ?? events[0]?.id ?? "");
+  const ev = events.find((e) => e.id === eventId);
+  const types = ev?.ticketTypes.filter((t) => !t.accreditationOnly && !t.soldOut) ?? [];
+  const [typeSlug, setTypeSlug] = useState(search.tier ?? "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSent(true);
-    toast.info("Preview mode: nothing is saved yet. Registrations will be stored once the backend is connected.");
+    const f = new FormData(e.currentTarget);
+    setBusy(true); setError("");
+    try {
+      const r = await registerTicket({ data: { eventId, typeSlug, name: String(f.get("name") ?? ""), email: String(f.get("email") ?? ""), phone: String(f.get("phone") ?? "") } });
+      if (r.ok) await navigate({ to: "/ticket/$token", params: { token: r.token } });
+      else setError(r.error);
+    } catch { setError("Something went wrong. Please try again."); }
+    finally { setBusy(false); }
   }
+
   return (
     <>
-      <PageHero eyebrow="Registration" title="Save your spot" intro="Fill this in and we’ll email your digital ticket." />
+      <PageHero eyebrow="Registration" title="Save your spot" intro="Fill this in and your digital ticket appears right away." />
       <Section>
-        <form onSubmit={onSubmit} className="mx-auto grid max-w-2xl gap-5 rounded-3xl border bg-card p-8 shadow-card sm:grid-cols-2">
-          <div className="sm:col-span-2 flex items-center justify-between"><h2 className="text-xl font-bold">Your details</h2><DraftBadge>Preview form</DraftBadge></div>
-          <div><Label htmlFor="name" className="mb-2 block text-sm font-bold">Full name *</Label><Input id="name" name="name" required maxLength={120} /></div>
-          <div><Label htmlFor="email" className="mb-2 block text-sm font-bold">Email *</Label><Input id="email" name="email" type="email" required maxLength={200} /></div>
-          <div><Label htmlFor="phone" className="mb-2 block text-sm font-bold">Phone (M-Pesa)</Label><Input id="phone" name="phone" type="tel" maxLength={30} /></div>
-          <div>
-            <Label htmlFor="tier" className="mb-2 block text-sm font-bold">Ticket type *</Label>
-            <select id="tier" name="tier" required defaultValue={tier ?? ""} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-              <option value="">Select…</option>
-              {ticketTypes.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
-            </select>
-          </div>
-          <div className="sm:col-span-2 flex flex-wrap items-center gap-4">
-            <Button type="submit" size="xl">Reserve my ticket</Button>
-            {sent && <p className="text-sm text-muted-foreground">Thanks! This is a preview, so nothing was sent.</p>}
-          </div>
-        </form>
+        {!ev ? <p className="text-muted-foreground">No events are open for registration yet.</p> : (
+          <form onSubmit={onSubmit} className="mx-auto grid max-w-2xl gap-5 rounded-3xl border bg-card p-8 shadow-card sm:grid-cols-2">
+            <h2 className="text-xl font-bold sm:col-span-2">Your details</h2>
+            {events.length > 1 && (
+              <div className="sm:col-span-2">
+                <Label htmlFor="event" className="mb-2 block text-sm font-bold">Event *</Label>
+                <select id="event" value={eventId} onChange={(e) => { setEventId(e.target.value); setTypeSlug(""); }} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+                  {events.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+                </select>
+              </div>
+            )}
+            <div><Label htmlFor="name" className="mb-2 block text-sm font-bold">Full name *</Label><Input id="name" name="name" required maxLength={120} /></div>
+            <div><Label htmlFor="email" className="mb-2 block text-sm font-bold">Email *</Label><Input id="email" name="email" type="email" required maxLength={200} /></div>
+            <div><Label htmlFor="phone" className="mb-2 block text-sm font-bold">Phone (M-Pesa)</Label><Input id="phone" name="phone" type="tel" maxLength={30} /></div>
+            <div>
+              <Label htmlFor="tier" className="mb-2 block text-sm font-bold">Ticket type *</Label>
+              <select id="tier" required value={typeSlug} onChange={(e) => setTypeSlug(e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+                <option value="">Select…</option>
+                {types.map((t) => <option key={t.slug} value={t.slug}>{t.name} · {formatPrice(t.priceKes)}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
+              <Button type="submit" size="xl" disabled={busy || !ev.open}>{busy ? "Reserving…" : "Reserve my ticket"}</Button>
+              {error && <p role="alert" className="text-sm font-semibold text-destructive">{error}</p>}
+            </div>
+          </form>
+        )}
       </Section>
     </>
   );
