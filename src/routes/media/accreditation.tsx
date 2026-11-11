@@ -6,6 +6,11 @@ export const Route = createFileRoute("/media/accreditation")({
   component: () => (
     <>
       <PageHero eyebrow="Media centre" title="Media accreditation" intro="Accredited journalists receive access to sessions, the press area and interview opportunities." />
+      <Section tone="sky" className="!py-12">
+        <div className="grid gap-4 sm:grid-cols-3">
+          {["Session access", "Press area", "Interview chances"].map((p) => (<div key={p} className="reveal rounded-3xl bg-card p-5 text-center font-display font-bold shadow-card">{p}</div>))}
+        </div>
+      </Section>
       <Section>
         <EnquiryForm submitLabel="Apply for accreditation" fields={[
           { name: "name", label: "Full name", required: true }, { name: "outlet", label: "Media outlet", required: true },

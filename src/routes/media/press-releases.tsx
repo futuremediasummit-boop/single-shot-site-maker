@@ -6,7 +6,7 @@ export const Route = createFileRoute("/media/press-releases")({
   component: () => (
     <>
       <PageHero eyebrow="Media centre" title="Press releases" />
-      <Section>{pressReleases.length ? (<ul className="divide-y border-y">{pressReleases.map((p) => (<li key={p.title} className="flex justify-between gap-6 py-6"><span className="font-display font-semibold">{p.title}</span><span className="text-sm text-muted-foreground">{p.date}</span></li>))}</ul>) : (<AwaitingContent title="No press releases yet" body="Official announcements will be published here." />)}</Section>
+      <Section>{pressReleases.length ? (<ul className="space-y-4">{pressReleases.map((p) => (<li key={p.title} className="reveal flex flex-wrap justify-between gap-3 rounded-3xl border bg-card p-6 shadow-card transition hover:-translate-y-1"><span className="font-display font-semibold">{p.title}</span><span className="text-sm text-muted-foreground">{p.date}</span></li>))}</ul>) : (<AwaitingContent title="No press releases yet" body="Announcements from the summit team will show up here." />)}</Section>
     </>
   ),
 });

@@ -20,10 +20,10 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-[70vh] items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <p className="eyebrow text-blue">Error 404</p><h1 className="mt-3 text-5xl font-bold text-foreground">Off the programme</h1>
+        <p className="animate-float text-7xl">🛰️</p><p className="eyebrow mt-4 text-blue">Error 404</p><h1 className="mt-3 text-5xl font-extrabold text-foreground">Oops, wrong stage!</h1>
         
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          We can’t find that page. It may have moved, or the link might be a little off.
         </p>
         <div className="mt-6">
           <Link
