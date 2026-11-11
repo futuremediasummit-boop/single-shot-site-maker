@@ -3,6 +3,7 @@ import { useMemo, useState, type ComponentType } from "react";
 import { CalendarDays, ClipboardCheck, Copy, Crown, FileText, Globe, Handshake, LayoutDashboard, Megaphone, Newspaper, Pencil, Plus, Rocket, Search, ShieldAlert, Sparkles, Ticket, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ItemEditor, ShareBox } from "@/components/admin/AdminParts";
+import { LivePublish } from "@/components/admin/LivePublish";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,13 +69,13 @@ function Admin() {
         <div className="mb-8 flex gap-4 rounded-3xl border-2 border-gold bg-gold/20 p-5">
           <ShieldAlert className="mt-0.5 h-6 w-6 shrink-0 text-navy" />
           <div className="text-sm">
-            <p className="font-bold">Preview mode: no login, and edits are saved in this browser only.</p>
+            <p className="font-bold">No login yet: edits are saved in this browser until you press Publish.</p>
             <p className="mt-1 text-muted-foreground">You can write, edit and organise everything here. To put it on the live site use the <button type="button" className="font-bold text-blue underline" onClick={() => setView("publish")}>Publish tab</button>. Real accounts and one-click publishing need the database (Lovable Cloud).</p>
           </div>
         </div>
         {!store.ready ? <p className="text-muted-foreground">Loading…</p>
           : view === "overview" ? <Overview store={store} go={setView} />
-          : view === "publish" ? <Publish data={store.data} reset={store.reset} />
+          : view === "publish" ? <Publish data={store.data} reset={store.reset} replaceAll={store.replaceAll} />
           : view === "checkin" ? <CheckIn />
           : active ? <CollectionView key={active.key} col={active} store={store} /> : null}
       </main>
@@ -199,7 +200,16 @@ function CollectionView({ col, store }: { col: Collection; store: Store }) {
   );
 }
 
-function Publish({ data, reset }: { data: Store["data"]; reset: () => void }) {
+function Publish({ data, reset, replaceAll }: { data: Store["data"]; reset: () => void; replaceAll: Store["replaceAll"] }) {
+  return (
+    <div className="animate-pop space-y-8">
+      <LivePublish data={data} replaceAll={replaceAll} />
+      <details className="rounded-3xl border bg-card p-5"><summary className="cursor-pointer font-bold">Manual copy-paste method (backup)</summary><div className="mt-5"><ManualPublish data={data} reset={reset} /></div></details>
+    </div>
+  );
+}
+
+function ManualPublish({ data, reset }: { data: Store["data"]; reset: () => void }) {
   return (
     <div className="animate-pop space-y-6">
       <div><h1 className="text-3xl font-extrabold">Publish to the website</h1><p className="mt-1 max-w-2xl text-muted-foreground">Published items become real pages with their own links once this code is in your site. One-click publishing arrives with the database.</p></div>

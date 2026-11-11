@@ -16,6 +16,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import { applyLive, loadLiveContent } from "@/lib/live-content";
 
 function NotFoundComponent() {
   return (
@@ -103,6 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" },
     ],
   }),
+  beforeLoad: async () => ({ liveContent: await loadLiveContent() }),
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -124,7 +126,8 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
+  const { queryClient, liveContent } = Route.useRouteContext();
+  applyLive(liveContent);
   const isAdmin = useRouterState({ select: (st) => st.location.pathname.startsWith("/admin") });
 
   return (

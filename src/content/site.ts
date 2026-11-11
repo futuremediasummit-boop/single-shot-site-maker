@@ -110,8 +110,12 @@ export const editions: Summit[] = [
   },
 ];
 /** The summit the homepage promotes: the edition marked `upcoming`, or null when none is announced. */
-export const upcomingSummit: Summit | null = editions.find((e) => e.upcoming) ?? null;
-export const pastEditions: Summit[] = editions.filter((e) => !e.upcoming);
+export let upcomingSummit: Summit | null = editions.find((e) => e.upcoming) ?? null;
+export let pastEditions: Summit[] = editions.filter((e) => !e.upcoming);
+export function refreshDerived() {
+  upcomingSummit = editions.find((e) => e.upcoming) ?? null;
+  pastEditions = editions.filter((e) => !e.upcoming);
+}
 export const stats: Stat[] = [];
 export const speakers: Speaker[] = [];
 export const partners: Partner[] = [];

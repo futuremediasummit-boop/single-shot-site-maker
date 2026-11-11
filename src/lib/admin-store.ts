@@ -143,8 +143,9 @@ export function useAdminStore() {
 
   const remove = useCallback((key: CollectionKey, id: string) => commit({ ...data, [key]: data[key].filter((x) => x.id !== id) }), [data, commit]);
   const reset = useCallback(() => { commit(seed()); }, [commit]);
+  const replaceAll = useCallback((next: Partial<Data>) => commit({ ...data, ...next }), [data, commit]);
 
-  return { data, ready, save, remove, reset };
+  return { data, ready, save, remove, reset, replaceAll };
 }
 
 export function exportCode(c: Collection, items: Item[]) {
