@@ -10,7 +10,10 @@ export type Summit = {
   edition: string; // e.g. "1st Edition"
   theme: string;
   dateLabel: string; // human readable, e.g. "12–14 May 2027"
-  startsAt?: string; // ISO date for the countdown
+  startsAt?: string; // ISO date-time for the countdown and calendar
+  endsAt?: string; // ISO date-time; if missing, a one-day event is assumed
+  /** Tick on exactly one edition: the next summit the homepage should promote. */
+  upcoming?: boolean;
   venue: string;
   city: string;
   registrationOpen: boolean;
@@ -77,7 +80,6 @@ export const site = {
   social: [] as { label: string; url: string }[],
 };
 
-export const upcomingSummit: Summit | null = null;
 /** DRAFT editions: placeholder wording so the archive can be designed. Replace with official details. */
 export const editions: Summit[] = [
   {
@@ -107,6 +109,9 @@ export const editions: Summit[] = [
     stats: [{ label: "Delegates", value: "TBC" }, { label: "Speakers", value: "TBC" }, { label: "Sessions", value: "TBC" }],
   },
 ];
+/** The summit the homepage promotes: the edition marked `upcoming`, or null when none is announced. */
+export const upcomingSummit: Summit | null = editions.find((e) => e.upcoming) ?? null;
+export const pastEditions: Summit[] = editions.filter((e) => !e.upcoming);
 export const stats: Stat[] = [];
 export const speakers: Speaker[] = [];
 export const partners: Partner[] = [];

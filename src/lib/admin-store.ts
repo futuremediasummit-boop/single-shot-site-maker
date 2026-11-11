@@ -9,7 +9,7 @@ export type Item = { id: string; published: boolean; updatedAt: number; [k: stri
 export type Field = {
   name: string;
   label: string;
-  kind?: "text" | "textarea" | "long" | "date" | "select" | "toggle";
+  kind?: "text" | "textarea" | "long" | "date" | "datetime" | "select" | "toggle";
   options?: string[];
   wide?: boolean;
   slugFrom?: string;
@@ -35,6 +35,10 @@ const s = (i: Item, k: string) => String(i[k] ?? "").trim();
 const paras = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 const lines = (t: string) => t.split("\n").map((p) => p.trim()).filter(Boolean);
 const opt = (k: string, v: string) => (v ? { [k]: v } : {});
+const pad = (n: number) => String(n).padStart(2, "0");
+/** ISO instant -> value for a datetime-local input (admin's own time zone). */
+const toLocal = (iso?: string) => { if (!iso) return ""; const d = new Date(iso); return Number.isNaN(d.getTime()) ? "" : `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const toIso = (local: string) => { if (!local) return ""; const d = new Date(local); return Number.isNaN(d.getTime()) ? "" : d.toISOString(); };
 
 export function slugify(t: string) {
   return t.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
@@ -60,8 +64,9 @@ export const collections: Collection[] = [
       { name: "theme", label: "Theme", wide: true }, { name: "dateLabel", label: "Date" }, { name: "venue", label: "Venue" }, { name: "city", label: "City" },
       { name: "summary", label: "Summary", kind: "textarea", wide: true },
       { name: "registrationOpen", label: "Registration is open", kind: "toggle" },
+      { name: "upcoming", label: "This is the NEXT summit (the homepage promotes it)", kind: "toggle" },
     ],
-    toSite: (i) => ({ year: Number(s(i, "year")) || 0, edition: s(i, "edition"), theme: s(i, "theme"), dateLabel: s(i, "dateLabel"), venue: s(i, "venue"), city: s(i, "city"), registrationOpen: !!i.registrationOpen, ...opt("summary", s(i, "summary")) }) },
+    toSite: (i) => ({ year: Number(s(i, "year")) || 0, edition: s(i, "edition"), theme: s(i, "theme"), dateLabel: s(i, "dateLabel"), venue: s(i, "venue"), city: s(i, "city"), registrationOpen: !!i.registrationOpen, ...opt("summary", s(i, "summary")), ...opt("startsAt", toIso(s(i, "startsAt"))), ...opt("endsAt", toIso(s(i, "endsAt"))), ...(i.upcoming ? { upcoming: true } : {}) }) },
   { key: "speakers", label: "Speakers", noun: "speaker", titleKey: "name", subKey: "organisation", listPath: "/speakers",
     path: (i) => (s(i, "slug") ? `/speakers/${s(i, "slug")}` : null), exportName: "speakers", exportType: "Speaker[]",
     fields: [
@@ -101,7 +106,7 @@ function seed(): Data {
   const base = (id: string, published: boolean) => ({ id, published, updatedAt: 0 });
   return {
     news: articles.map((a) => ({ ...base(`n-${a.slug}`, true), slug: a.slug, title: a.title, category: a.category, date: a.date, excerpt: a.excerpt, body: a.body.join("\n\n"), image: a.image ?? "" })),
-    summits: editions.map((e) => ({ ...base(`s-${e.year}`, !e.draft), year: String(e.year), edition: e.edition, theme: e.theme, dateLabel: e.dateLabel, venue: e.venue, city: e.city, summary: e.summary ?? "", registrationOpen: e.registrationOpen })),
+    summits: editions.map((e) => ({ ...base(`s-${e.year}`, !e.draft), year: String(e.year), edition: e.edition, theme: e.theme, dateLabel: e.dateLabel, venue: e.venue, city: e.city, summary: e.summary ?? "", registrationOpen: e.registrationOpen, startsAt: toLocal(e.startsAt), endsAt: toLocal(e.endsAt), upcoming: !!e.upcoming })),
     speakers: speakers.map((x) => ({ ...base(`p-${x.slug}`, true), slug: x.slug, name: x.name, title: x.title, organisation: x.organisation, role: x.role, bio: x.bio })),
     partners: partners.map((p) => ({ ...base(`pa-${p.name}`, true), name: p.name, kind: p.kind, category: p.category, url: p.url ?? "" })),
     press: pressReleases.map((p) => ({ ...base(`pr-${p.title}`, true), title: p.title, date: p.date, url: p.url ?? "" })),

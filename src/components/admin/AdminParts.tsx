@@ -81,6 +81,7 @@ export function ItemEditor({ col, item, existing, open, onClose, onSave }: {
       if (!sl) return "The link name can’t be empty.";
       if (existing.some((x) => x.id !== v.id && x[slugField.name] === sl)) return "Another item already uses that link name. Pick a different one.";
     }
+    if (col.key === "summits" && v.upcoming && existing.some((x) => x.id !== v.id && x.upcoming)) return "Another summit is already marked as the next one. Untick it there first, so only one is promoted.";
     return "";
   }, [v, col, existing, slugField]);
 
@@ -118,7 +119,7 @@ export function ItemEditor({ col, item, existing, open, onClose, onSave }: {
                           {f.options?.map((o) => <option key={o}>{o}</option>)}
                         </select>
                       ) : (
-                        <Input id={id} type={f.kind === "date" ? "date" : "text"} maxLength={300} value={String(val ?? "")} onChange={(e) => { if (f.slugFrom) { setSlugTouched(true); set(f.name, slugify(e.target.value)); } else set(f.name, e.target.value); }} />
+                        <Input id={id} type={f.kind === "date" ? "date" : f.kind === "datetime" ? "datetime-local" : "text"} maxLength={300} value={String(val ?? "")} onChange={(e) => { if (f.slugFrom) { setSlugTouched(true); set(f.name, slugify(e.target.value)); } else set(f.name, e.target.value); }} />
                       )}
                       {f.hint && <p className="mt-1 text-xs text-muted-foreground">{f.hint}</p>}
                     </>

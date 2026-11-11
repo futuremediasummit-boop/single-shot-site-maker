@@ -11,13 +11,13 @@ export const Route = createFileRoute("/summits/")({
       <Section>
         {editions.length ? (
           <div className="grid gap-6 md:grid-cols-2">
-            {editions.map((e, i) => (
+            {[...editions].sort((a, b) => Number(!!b.upcoming) - Number(!!a.upcoming) || b.year - a.year).map((e, i) => (
               <Link key={e.year} to="/summits/$year" params={{ year: String(e.year) }} className="reveal group relative overflow-hidden rounded-3xl border bg-card p-8 shadow-card transition hover:-translate-y-2 hover:rotate-1">
                 <div className={`blob -right-10 -top-10 h-40 w-40 opacity-50 ${i % 2 ? "bg-sky" : "bg-mint"}`} />
                 <div className="relative">
                   <div className="flex items-start justify-between gap-3">
                     <span className="font-display text-7xl font-extrabold text-navy">{e.year}</span>
-                    {e.draft && <DraftBadge />}
+                    <span className="flex flex-wrap justify-end gap-2">{e.upcoming && <span className="rounded-full bg-blue px-3 py-1 text-xs font-bold text-primary-foreground">Coming up</span>}{e.draft && <DraftBadge />}</span>
                   </div>
                   <p className="eyebrow mt-4 text-blue">{e.edition}</p>
                   <p className="mt-2 text-xl font-semibold">{e.theme}</p>
