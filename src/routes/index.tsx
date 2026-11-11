@@ -6,7 +6,7 @@ import studioImg from "@/assets/studio.jpg";
 import { Button } from "@/components/ui/button";
 import { AwaitingContent, Section, meta } from "@/components/site/Blocks";
 import { NewsletterForm } from "@/components/site/Forms";
-import { articles, editions, partners, site, speakers, stats, upcomingSummit } from "@/content/site";
+import { articles, editions, focusAreas, partners, site, speakers, stats, upcomingSummit } from "@/content/site";
 
 export const Route = createFileRoute("/")({
   head: () => meta("Shaping Conversations. Transforming Media.", "Future Media Summit brings together journalists, broadcasters, creators, technologists and policymakers shaping the future of media."),
@@ -33,15 +33,17 @@ function Home() {
   return (
     <>
       <section className="surface-navy relative -mt-px overflow-hidden">
-        <img src={heroImg} alt="Speaker addressing a summit audience beneath a global network display" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover opacity-70" />
+        <img src={heroImg} alt="Speaker addressing a summit audience beneath a global network display" width={1920} height={1088} className="animate-kenburns absolute inset-0 h-full w-full object-cover opacity-60" />
         <div className="bg-hero-fade absolute inset-0" />
+        <div className="blob animate-drift -left-24 top-24 h-96 w-96 bg-blue/35" />
+        <div className="blob animate-drift right-0 top-1/3 h-80 w-80 bg-gold/20 [animation-delay:-6s]" />
         <div className="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col justify-end px-5 pb-16 pt-32 lg:px-8">
-          <p className="eyebrow animate-rise text-gold">{s ? `${s.edition} · ${s.year}` : "Hey, media people 👋"}</p>
-          <h1 className="mt-6 animate-rise text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-7xl lg:text-8xl">FUTURE<br />MEDIA SUMMIT</h1>
-          <p className="mt-6 max-w-2xl animate-rise font-display text-xl italic text-navy-foreground/85 sm:text-2xl">“{site.tagline}”</p>
-          <p className="mt-5 max-w-xl animate-rise text-navy-foreground/70">A gathering for storytellers, creators, journalists, techies and big thinkers who love media and want to shape where it goes next. Come learn, connect and be inspired.</p>
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Button asChild variant="gold" size="xl"><Link to="/tickets">Grab your ticket</Link></Button>
+          <p className="eyebrow animate-rise text-gold">{s ? `${s.edition} · ${s.year}` : <>Hey, media people <span className="animate-wave">👋</span></>}</p>
+          <h1 className="mt-6 animate-rise delay-1 text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-7xl lg:text-8xl">FUTURE<br /><span className="text-gradient">MEDIA</span> SUMMIT</h1>
+          <p className="mt-6 max-w-2xl animate-rise delay-2 font-display text-xl italic text-navy-foreground/85 sm:text-2xl">“{site.tagline}”</p>
+          <p className="mt-5 max-w-xl animate-rise delay-3 text-navy-foreground/70">A gathering for storytellers, creators, journalists, techies and big thinkers who love media and want to shape where it goes next. Come learn, connect and be inspired.</p>
+          <div className="animate-rise delay-4 mt-10 flex flex-wrap gap-4">
+            <Button asChild variant="gold" size="xl" className="shiny"><Link to="/tickets">Grab your ticket</Link></Button>
             <Button asChild variant="onDark" size="xl"><Link to="/summit">See what it’s about</Link></Button>
           </div>
           <div className="mt-14 border-t border-navy-foreground/15 pt-8">
@@ -64,6 +66,14 @@ function Home() {
         </div>
       </section>
 
+      <div className="surface-navy overflow-hidden border-y border-navy-foreground/10 py-4" aria-hidden="true">
+        <div className="animate-marquee flex w-max gap-10 whitespace-nowrap font-display text-lg font-bold">
+          {[...focusAreas, ...focusAreas].map((f, i) => (
+            <span key={i} className="flex items-center gap-10"><span>{f}</span><span className="animate-twinkle text-gold">✦</span></span>
+          ))}
+        </div>
+      </div>
+
       <Section>
         <div className="grid items-center gap-14 lg:grid-cols-2">
           <div>
@@ -74,7 +84,7 @@ function Home() {
             <p className="mt-4 text-muted-foreground">Whether you run a newsroom, make videos on your phone, or are just starting out — there’s a seat for you here.</p>
             <Button asChild variant="navy" size="xl" className="mt-10"><Link to="/about">Get to know us</Link></Button>
           </div>
-          <img src={studioImg} alt="Broadcast professionals working in a control room" loading="lazy" width={1600} height={1072} className="aspect-[4/3] w-full rounded-lg object-cover shadow-card" />
+          <img src={studioImg} alt="Broadcast professionals working in a control room" loading="lazy" width={1600} height={1072} className="sticker aspect-[4/3] w-full rounded-3xl object-cover" />
         </div>
       </Section>
 
@@ -86,11 +96,11 @@ function Home() {
         </Section>
       )}
 
-      <Section tone="mist" eyebrow="Past summits" title="Memories from every summit" intro="Photos, talks and highlights from each year.">
+      <Section tone="mint" eyebrow="Past summits" title="Memories from every summit" intro="Photos, talks and highlights from each year.">
         {editions.length ? (
           <div className="grid gap-6 md:grid-cols-3">
             {editions.map((e) => (
-              <Link key={e.year} to="/summits/$year" params={{ year: String(e.year) }} className="group rounded-lg border bg-card p-8 shadow-card transition hover:-translate-y-1">
+              <Link key={e.year} to="/summits/$year" params={{ year: String(e.year) }} className="group rounded-3xl border bg-card p-8 shadow-card transition hover:-translate-y-2 hover:rotate-1">
                 <div className="font-display text-5xl font-bold text-navy">{e.year}</div>
                 <p className="eyebrow mt-3 text-blue">{e.edition}</p>
                 <p className="mt-3 font-medium">{e.theme}</p>
@@ -107,7 +117,7 @@ function Home() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {speakers.slice(0, 8).map((sp) => (
               <Link key={sp.slug} to="/speakers/$slug" params={{ slug: sp.slug }} className="group">
-                <div className="aspect-[4/5] overflow-hidden rounded-lg bg-mist">{sp.photo && <img src={sp.photo} alt={sp.name} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />}</div>
+                <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-mist">{sp.photo && <img src={sp.photo} alt={sp.name} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />}</div>
                 <p className="mt-4 font-display font-semibold">{sp.name}</p>
                 <p className="text-sm text-muted-foreground">{sp.title}, {sp.organisation}</p>
               </Link>
@@ -118,7 +128,7 @@ function Home() {
         )}
       </Section>
 
-      <Section tone="mist" eyebrow="Partners" title="Friends of the summit">
+      <Section tone="sky" eyebrow="Partners" title="Friends of the summit">
         {partners.length ? (
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4">{partners.map((p) => (<div key={p.name} className="flex h-28 items-center justify-center rounded-lg border bg-card p-6 font-display font-semibold text-navy">{p.logo ? <img src={p.logo} alt={p.name} className="max-h-12" /> : p.name}</div>))}</div>
         ) : (
@@ -126,7 +136,7 @@ function Home() {
         )}
       </Section>
 
-      <Section eyebrow="Latest news" title="What’s new">
+      <Section tone="sun" eyebrow="Latest news" title="What’s new">
         {articles.length ? (
           <div className="grid gap-8 md:grid-cols-3">{articles.slice(0, 3).map((a) => (
             <Link key={a.slug} to="/news/$slug" params={{ slug: a.slug }} className="group border-t-2 border-navy pt-6"><p className="eyebrow text-blue">{a.category}</p><h3 className="mt-3 text-xl font-semibold group-hover:text-blue">{a.title}</h3><p className="mt-3 text-sm text-muted-foreground">{a.excerpt}</p></Link>

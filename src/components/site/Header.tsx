@@ -23,7 +23,7 @@ export function Header() {
         <Link to="/" aria-label="Future Media Summit home"><Logo light={false} /></Link>
         <nav className="hidden items-center gap-6 xl:flex">
           {nav.map((n) => (
-            <Link key={n.to} to={n.to} className="text-sm font-medium text-foreground/70 transition-colors hover:text-blue" activeProps={{ className: "!text-blue" }}>
+            <Link key={n.to} to={n.to} className="link-slide text-sm font-bold text-foreground/70 transition-colors hover:text-blue" activeProps={{ className: "!text-blue" }}>
               {n.label}
             </Link>
           ))}

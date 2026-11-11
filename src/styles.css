@@ -30,14 +30,16 @@
  */
 
 @theme inline {
-  --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --color-navy: var(--navy);
   --color-navy-deep: var(--navy-deep);
   --color-navy-foreground: var(--navy-foreground);
   --color-gold: var(--gold);
   --color-blue: var(--blue);
   --color-mist: var(--mist);
+  --color-mint: var(--mint);
+  --color-sky: var(--sky);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -64,44 +66,48 @@
   --color-ring: var(--ring);
 }
 
-/* FMS brand: Midnight Navy #0B1B44, Innovation Blue #0066FF, Premium Gold #D4AF37,
-   Ivory #F8F9FA, Deep Charcoal #101828, Soft Blue Grey #DCE6F5 */
+/* FMS "pop" palette (same token names as before, so every page picks it up):
+   navy = Midnight Plum, blue = Hot Coral (primary), gold = Sunny Yellow,
+   mist = Lavender Haze, background = Warm Cream, plus --mint and --sky for extra fun. */
 :root {
-  --radius: 0.9rem;
-  --navy: oklch(0.236 0.083 266.5);
-  --navy-deep: oklch(0.19 0.07 266.5);
-  --navy-foreground: oklch(0.984 0.002 247.8);
-  --blue: oklch(0.556 0.231 260.6);
-  --gold: oklch(0.762 0.135 89.5);
-  --mist: oklch(0.919 0.025 258.4);
-  --background: oklch(0.984 0.002 247.8);
-  --foreground: oklch(0.21 0.034 264.7);
+  --radius: 1.25rem;
+  --navy: oklch(0.26 0.09 292);
+  --navy-deep: oklch(0.19 0.08 292);
+  --navy-foreground: oklch(0.985 0.012 85);
+  --blue: oklch(0.6 0.23 22);
+  --gold: oklch(0.89 0.17 95);
+  --mint: oklch(0.86 0.13 170);
+  --sky: oklch(0.82 0.1 230);
+  --mist: oklch(0.94 0.04 300);
+  --background: oklch(0.985 0.012 85);
+  --foreground: oklch(0.24 0.06 292);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.034 264.7);
+  --card-foreground: oklch(0.24 0.06 292);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.034 264.7);
-  --primary: oklch(0.556 0.231 260.6);
+  --popover-foreground: oklch(0.24 0.06 292);
+  --primary: oklch(0.6 0.23 22);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.919 0.025 258.4);
-  --secondary-foreground: oklch(0.236 0.083 266.5);
-  --muted: oklch(0.955 0.012 258);
-  --muted-foreground: oklch(0.47 0.03 262);
-  --accent: oklch(0.919 0.025 258.4);
-  --accent-foreground: oklch(0.236 0.083 266.5);
+  --secondary: oklch(0.94 0.04 300);
+  --secondary-foreground: oklch(0.26 0.09 292);
+  --muted: oklch(0.96 0.02 85);
+  --muted-foreground: oklch(0.45 0.04 292);
+  --accent: oklch(0.94 0.04 300);
+  --accent-foreground: oklch(0.26 0.09 292);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.022 258.4);
-  --input: oklch(0.88 0.025 258.4);
-  --ring: oklch(0.556 0.231 260.6);
-  --gradient-hero: linear-gradient(180deg, color-mix(in oklab, var(--navy-deep) 55%, transparent) 0%, color-mix(in oklab, var(--navy-deep) 85%, transparent) 60%, var(--navy-deep) 100%);
-  --shadow-card: 0 20px 40px -24px color-mix(in oklab, var(--navy) 35%, transparent);
+  --border: oklch(0.91 0.03 300);
+  --input: oklch(0.88 0.04 300);
+  --ring: oklch(0.6 0.23 22);
+  --gradient-hero: linear-gradient(180deg, color-mix(in oklab, var(--navy-deep) 45%, transparent) 0%, color-mix(in oklab, var(--navy-deep) 80%, transparent) 60%, var(--navy-deep) 100%);
+  --shadow-card: 0 24px 40px -22px color-mix(in oklab, var(--navy) 40%, transparent);
+  --shadow-pop: 6px 6px 0 0 var(--gold);
 }
 
 @layer base {
   * { border-color: var(--color-border); }
   html { scroll-behavior: smooth; }
   body { background-color: var(--color-background); color: var(--color-foreground); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.025em; font-weight: 700; }
 }
 
 @utility surface-navy {
@@ -113,8 +119,8 @@
 @utility eyebrow {
   font-family: var(--font-sans);
   font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 @utility gold-rule {
   display: block;
@@ -130,3 +136,83 @@
 
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 @utility animate-rise { animation: rise 0.8s cubic-bezier(.2,.7,.2,1) both; }
+
+/* ---------- Motion ---------- */
+@keyframes float { 0%,100% { transform: translate3d(0,0,0) rotate(0deg); } 50% { transform: translate3d(0,-18px,0) rotate(4deg); } }
+@keyframes drift { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(24px,16px,0) scale(1.08); } }
+@keyframes kenburns { from { transform: scale(1.02); } to { transform: scale(1.12); } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+@keyframes twinkle { 0%,100% { opacity: 1; transform: scale(1) rotate(0); } 50% { opacity: .55; transform: scale(1.25) rotate(20deg); } }
+@keyframes reveal { from { opacity: 0; transform: translateY(28px) scale(.98); } to { opacity: 1; transform: none; } }
+
+@utility animate-float { animation: float 7s ease-in-out infinite; }
+@utility animate-drift { animation: drift 12s ease-in-out infinite; }
+@utility animate-kenburns { animation: kenburns 22s ease-in-out infinite alternate; }
+@utility animate-marquee { animation: marquee 38s linear infinite; }
+@utility animate-twinkle { animation: twinkle 2.6s ease-in-out infinite; }
+@utility wiggle-hover { &:hover { animation: wiggle .5s ease-in-out; } }
+
+/* Scroll-reveal: pure CSS, no JS. Browsers without scroll timelines just show the content. */
+@utility reveal {
+  @supports (animation-timeline: view()) {
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 45%;
+  }
+}
+
+@utility blob {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(60px);
+  pointer-events: none;
+}
+@utility pop-shadow { box-shadow: var(--shadow-pop); }
+@utility text-gradient {
+  background-image: linear-gradient(100deg, var(--gold), var(--blue) 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility sticker {
+  border: 4px solid var(--card);
+  box-shadow: 10px 10px 0 0 var(--gold), var(--shadow-card);
+  transform: rotate(-2deg);
+  transition: transform .4s cubic-bezier(.2,.7,.2,1);
+  &:hover { transform: rotate(0deg) scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ---------- Round 2: stagger, waving hand, link underline, pastel hovers ---------- */
+@keyframes wave { 0%,60%,100% { transform: rotate(0); } 10%,30% { transform: rotate(16deg); } 20%,40% { transform: rotate(-10deg); } 50% { transform: rotate(8deg); } }
+@keyframes shine { from { transform: translateX(-120%) skewX(-20deg); } to { transform: translateX(260%) skewX(-20deg); } }
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.06); } 100% { transform: scale(1); opacity: 1; } }
+
+@utility animate-wave { display: inline-block; transform-origin: 70% 70%; animation: wave 2.4s ease-in-out infinite; }
+@utility animate-pop { animation: pop .7s cubic-bezier(.2,.9,.3,1.3) both; }
+@utility delay-1 { animation-delay: .1s; }
+@utility delay-2 { animation-delay: .25s; }
+@utility delay-3 { animation-delay: .4s; }
+@utility delay-4 { animation-delay: .55s; }
+
+/* ticker pauses when you hover it */
+.animate-marquee:hover { animation-play-state: paused; }
+
+/* nav links get a sliding coral underline */
+@utility link-slide {
+  position: relative;
+  &::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -6px; height: 3px; border-radius: 999px; background: var(--blue); transition: right .3s cubic-bezier(.2,.7,.2,1); }
+  &:hover::after, &[aria-current="page"]::after { right: 0; }
+}
+
+/* shiny sweep across the gold button */
+@utility shiny {
+  position: relative;
+  overflow: hidden;
+  &::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 40%; background: linear-gradient(90deg, transparent, rgb(255 255 255 / .55), transparent); transform: translateX(-120%) skewX(-20deg); }
+  &:hover::before { animation: shine .8s ease; }
+}

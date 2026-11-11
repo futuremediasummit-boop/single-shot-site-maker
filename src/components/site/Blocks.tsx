@@ -7,6 +7,8 @@ export function PageHero({ eyebrow, title, intro, children }: { eyebrow: string;
   return (
     <section className="surface-navy relative overflow-hidden">
       <div className="grid-lines absolute inset-0 opacity-60" />
+      <div className="blob animate-drift -right-20 -top-24 h-80 w-80 bg-blue/40" />
+      <div className="blob animate-drift -bottom-24 left-1/4 h-72 w-72 bg-gold/25 [animation-delay:-5s]" />
       <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-20 lg:px-8 lg:pt-28">
         <p className="eyebrow animate-rise text-gold">{eyebrow}</p>
         <h1 className="mt-5 max-w-4xl animate-rise text-4xl font-bold leading-[1.05] sm:text-6xl">{title}</h1>
@@ -17,11 +19,11 @@ export function PageHero({ eyebrow, title, intro, children }: { eyebrow: string;
   );
 }
 
-export function Section({ eyebrow, title, intro, children, className, tone = "ivory" }: { eyebrow?: string; title?: string; intro?: string; children?: ReactNode; className?: string; tone?: "ivory" | "mist" | "navy" }) {
-  const toneCls = tone === "navy" ? "surface-navy" : tone === "mist" ? "bg-mist/50" : "";
+export function Section({ eyebrow, title, intro, children, className, tone = "ivory" }: { eyebrow?: string; title?: string; intro?: string; children?: ReactNode; className?: string; tone?: "ivory" | "mist" | "navy" | "mint" | "sky" | "sun" }) {
+  const toneCls = { navy: "surface-navy", mist: "bg-mist/60", mint: "bg-mint/25", sky: "bg-sky/25", sun: "bg-gold/20", ivory: "" }[tone];
   return (
     <section className={cn("py-20 lg:py-28", toneCls, className)}>
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="reveal mx-auto max-w-7xl px-5 lg:px-8">
         {(eyebrow || title) && (
           <div className="mb-12 max-w-3xl">
             {eyebrow && <p className={cn("eyebrow", tone === "navy" ? "text-gold" : "text-blue")}>{eyebrow}</p>}
@@ -38,8 +40,8 @@ export function Section({ eyebrow, title, intro, children, className, tone = "iv
 /** Designed placeholder shown wherever verified content has not been published yet. */
 export function AwaitingContent({ title, body, action, dark }: { title: string; body: string; action?: { to: string; label: string }; dark?: boolean }) {
   return (
-    <div className={cn("relative overflow-hidden rounded-lg border border-dashed p-10 text-center sm:p-14", dark ? "border-navy-foreground/20" : "border-input bg-card")}>
-      <Sparkles className="mx-auto h-6 w-6 text-gold" />
+    <div className={cn("relative overflow-hidden rounded-2xl border-2 border-dashed p-10 text-center sm:p-14", dark ? "border-navy-foreground/20" : "border-input bg-card")}>
+      <Sparkles className="animate-twinkle mx-auto h-7 w-7 text-gold" />
       <h3 className="mt-5 text-xl font-semibold">{title}</h3>
       <p className={cn("mx-auto mt-3 max-w-lg", dark ? "text-navy-foreground/65" : "text-muted-foreground")}>{body}</p>
       {action && (
