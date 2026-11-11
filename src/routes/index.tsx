@@ -4,7 +4,7 @@ import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import heroImg from "@/assets/hero-stage.jpg";
 import studioImg from "@/assets/studio.jpg";
 import { Button } from "@/components/ui/button";
-import { AwaitingContent, DraftBadge, Section, meta } from "@/components/site/Blocks";
+import { AwaitingContent, DraftBadge, PhotoTile, Section, meta } from "@/components/site/Blocks";
 import { NewsletterForm } from "@/components/site/Forms";
 import { articles, editions, focusAreas, partners, site, speakers, stats, upcomingSummit } from "@/content/site";
 
@@ -115,9 +115,9 @@ function Home() {
       <Section eyebrow="Speakers" title="Who’s on stage">
         {speakers.length ? (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {speakers.slice(0, 8).map((sp) => (
+            {speakers.slice(0, 8).map((sp, i) => (
               <Link key={sp.slug} to="/speakers/$slug" params={{ slug: sp.slug }} className="group">
-                <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-mist">{sp.photo && <img src={sp.photo} alt={sp.name} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />}</div>
+                <PhotoTile src={sp.photo} name={sp.name} i={i} />
                 <p className="mt-4 font-display font-semibold">{sp.name}</p>
                 <p className="text-sm text-muted-foreground">{sp.title}, {sp.organisation}</p>
               </Link>

@@ -11,7 +11,7 @@ const cols = [
 
 export function Footer() {
   return (
-    <footer className="surface-navy border-t-2 border-gold/60">
+    <footer className="surface-navy relative border-t-4 border-gold">
       <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_repeat(4,1fr)]">
           <div>
@@ -24,14 +24,14 @@ export function Footer() {
               <h4 className="eyebrow text-gold">{c.title}</h4>
               <ul className="mt-5 space-y-3">
                 {c.links.map(([to, label]) => (
-                  <li key={to}><Link to={to} className="text-sm text-navy-foreground/70 hover:text-navy-foreground">{label}</Link></li>
+                  <li key={to}><Link to={to} className="inline-block text-sm text-navy-foreground/70 transition hover:translate-x-1 hover:text-gold">{label}</Link></li>
                 ))}
               </ul>
             </div>
           ))}
         </div>
         <div className="mt-14 flex flex-col justify-between gap-4 border-t border-navy-foreground/10 pt-6 text-xs text-navy-foreground/50 sm:flex-row">
-          <p>© {new Date().getFullYear()} Future Media Summit. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Future Media Summit · Made with <span className="animate-twinkle inline-block text-blue">♥</span> for media people</p>
           <div className="flex gap-6">
             <Link to="/privacy-policy" className="hover:text-navy-foreground">Privacy Policy</Link>
             <Link to="/terms-and-conditions" className="hover:text-navy-foreground">Terms & Conditions</Link>

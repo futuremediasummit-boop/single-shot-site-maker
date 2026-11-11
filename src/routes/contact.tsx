@@ -10,7 +10,7 @@ export const Route = createFileRoute("/contact")({
       <Section>
         <div className="grid gap-12 lg:grid-cols-[1fr_2fr]">
           <div className="space-y-6">
-            {(["email", "phone", "address"] as const).map((k) => (<div key={k}><p className="eyebrow text-blue">{k}</p><p className="mt-2 font-display font-semibold">{site.contact[k] ?? "To be announced"}</p></div>))}
+            {(["email", "phone", "address"] as const).map((k) => (<div key={k} className="rounded-3xl bg-mint/40 p-5"><p className="eyebrow capitalize text-blue">{k}</p><p className="mt-2 break-words font-display font-semibold">{site.contact[k] ?? "To be announced"}</p></div>))}
           </div>
           <EnquiryForm submitLabel="Send message" fields={[
             { name: "name", label: "Full name", required: true }, { name: "email", label: "Email", type: "email", required: true },

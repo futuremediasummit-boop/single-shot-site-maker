@@ -16,10 +16,10 @@ export function EnquiryForm({ fields, submitLabel }: { fields: Field[]; submitLa
     toast.info("Preview mode: online submissions will be saved once the summit office goes live.");
   }
   return (
-    <form onSubmit={onSubmit} className="grid gap-5 rounded-lg border bg-card p-6 shadow-card sm:grid-cols-2 sm:p-8">
+    <form onSubmit={onSubmit} className="grid gap-5 rounded-3xl border bg-card p-6 shadow-card sm:grid-cols-2 sm:p-8">
       {fields.map((f) => (
         <div key={f.name} className={f.full || f.type === "textarea" ? "sm:col-span-2" : ""}>
-          <Label htmlFor={f.name} className="mb-2 block text-sm font-medium">{f.label}{f.required && <span className="text-blue"> *</span>}</Label>
+          <Label htmlFor={f.name} className="mb-2 block text-sm font-bold">{f.label}{f.required && <span className="text-blue"> *</span>}</Label>
           {f.type === "textarea" ? (
             <Textarea id={f.name} name={f.name} required={f.required} rows={5} maxLength={2000} />
           ) : f.type === "select" ? (

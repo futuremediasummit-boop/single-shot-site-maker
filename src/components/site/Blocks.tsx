@@ -3,6 +3,18 @@ import type { ReactNode } from "react";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/** Cycle of soft background colours for cards and photo placeholders. */
+export const pops = ["bg-mint", "bg-sky", "bg-gold", "bg-blue/25", "bg-mist"] as const;
+
+/** Photo box: shows the photo, or a coloured tile with the first letter when there is none yet. */
+export function PhotoTile({ src, name, i }: { src?: string; name: string; i: number }) {
+  return (
+    <div className={`reveal aspect-[4/5] overflow-hidden rounded-3xl transition duration-300 hover:-rotate-1 hover:scale-[1.03] ${pops[i % pops.length]}`}>
+      {src ? <img src={src} alt={name} loading="lazy" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center font-display text-7xl font-extrabold text-navy/40">{name.charAt(0)}</div>}
+    </div>
+  );
+}
+
 export function DraftBadge({ children = "Draft · sample content" }: { children?: ReactNode }) {
   return <span className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1 text-xs font-bold text-navy"><Sparkles className="h-3 w-3" />{children}</span>;
 }
