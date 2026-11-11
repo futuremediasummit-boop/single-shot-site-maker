@@ -56,7 +56,7 @@ export const site = {
   tagline: "Shaping Conversations. Transforming Media. Inspiring the Future.",
   /** Official contact details — leave null until verified. */
   contact: {
-    email: null as string | null,
+    email: "futuremediasummit@gmail.com" as string | null,
     phone: null as string | null,
     address: null as string | null,
   },
