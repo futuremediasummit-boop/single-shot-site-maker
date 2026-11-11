@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Organisation content lives in `src/content/site.ts` with empty lists by default; pages must render a designed placeholder when empty — never invent organisational facts (brief forbids fabrication).
+- Site chrome (Header/Footer) is mounted in `src/routes/__root.tsx`; section routes with children use a layout file returning `<Outlet />` plus an `index.tsx` leaf.

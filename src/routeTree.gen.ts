@@ -10,33 +10,391 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as BecomeAPartnerRouteImport } from './routes/become-a-partner'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as MediaRouteImport } from './routes/media'
+import { Route as NewsRouteImport } from './routes/news'
+import { Route as PartnersRouteImport } from './routes/partners'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SpeakersRouteImport } from './routes/speakers'
+import { Route as SponsorsRouteImport } from './routes/sponsors'
+import { Route as SummitRouteImport } from './routes/summit'
+import { Route as SummitsRouteImport } from './routes/summits'
+import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
+import { Route as TicketsRouteImport } from './routes/tickets'
+import { Route as AboutIndexRouteImport } from './routes/about/index'
+import { Route as AboutLeadershipRouteImport } from './routes/about/leadership'
+import { Route as AboutOurStoryRouteImport } from './routes/about/our-story'
+import { Route as MediaIndexRouteImport } from './routes/media/index'
+import { Route as MediaAccreditationRouteImport } from './routes/media/accreditation'
+import { Route as MediaMediaKitRouteImport } from './routes/media/media-kit'
+import { Route as MediaPressReleasesRouteImport } from './routes/media/press-releases'
+import { Route as NewsIndexRouteImport } from './routes/news/index'
+import { Route as NewsSlugRouteImport } from './routes/news/$slug'
+import { Route as SpeakersIndexRouteImport } from './routes/speakers/index'
+import { Route as SpeakersSlugRouteImport } from './routes/speakers/$slug'
+import { Route as SummitsIndexRouteImport } from './routes/summits/index'
+import { Route as SummitsYearRouteImport } from './routes/summits/$year'
+import { Route as TicketTokenRouteImport } from './routes/ticket/$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BecomeAPartnerRoute = BecomeAPartnerRouteImport.update({
+  id: '/become-a-partner',
+  path: '/become-a-partner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaRoute = MediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersRoute = PartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpeakersRoute = SpeakersRouteImport.update({
+  id: '/speakers',
+  path: '/speakers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SponsorsRoute = SponsorsRouteImport.update({
+  id: '/sponsors',
+  path: '/sponsors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SummitRoute = SummitRouteImport.update({
+  id: '/summit',
+  path: '/summit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SummitsRoute = SummitsRouteImport.update({
+  id: '/summits',
+  path: '/summits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
+  id: '/terms-and-conditions',
+  path: '/terms-and-conditions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TicketsRoute = TicketsRouteImport.update({
+  id: '/tickets',
+  path: '/tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutIndexRoute = AboutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutLeadershipRoute = AboutLeadershipRouteImport.update({
+  id: '/leadership',
+  path: '/leadership',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutOurStoryRoute = AboutOurStoryRouteImport.update({
+  id: '/our-story',
+  path: '/our-story',
+  getParentRoute: () => AboutRoute,
+} as any)
+const MediaIndexRoute = MediaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MediaRoute,
+} as any)
+const MediaAccreditationRoute = MediaAccreditationRouteImport.update({
+  id: '/accreditation',
+  path: '/accreditation',
+  getParentRoute: () => MediaRoute,
+} as any)
+const MediaMediaKitRoute = MediaMediaKitRouteImport.update({
+  id: '/media-kit',
+  path: '/media-kit',
+  getParentRoute: () => MediaRoute,
+} as any)
+const MediaPressReleasesRoute = MediaPressReleasesRouteImport.update({
+  id: '/press-releases',
+  path: '/press-releases',
+  getParentRoute: () => MediaRoute,
+} as any)
+const NewsIndexRoute = NewsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => NewsRoute,
+} as any)
+const NewsSlugRoute = NewsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => NewsRoute,
+} as any)
+const SpeakersIndexRoute = SpeakersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SpeakersRoute,
+} as any)
+const SpeakersSlugRoute = SpeakersSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => SpeakersRoute,
+} as any)
+const SummitsIndexRoute = SummitsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SummitsRoute,
+} as any)
+const SummitsYearRoute = SummitsYearRouteImport.update({
+  id: '/$year',
+  path: '/$year',
+  getParentRoute: () => SummitsRoute,
+} as any)
+const TicketTokenRoute = TicketTokenRouteImport.update({
+  id: '/ticket/$token',
+  path: '/ticket/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRouteWithChildren
+  '/become-a-partner': typeof BecomeAPartnerRoute
+  '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/media': typeof MediaRouteWithChildren
+  '/news': typeof NewsRouteWithChildren
+  '/partners': typeof PartnersRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/register': typeof RegisterRoute
+  '/speakers': typeof SpeakersRouteWithChildren
+  '/sponsors': typeof SponsorsRoute
+  '/summit': typeof SummitRoute
+  '/summits': typeof SummitsRouteWithChildren
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/tickets': typeof TicketsRoute
+  '/about/leadership': typeof AboutLeadershipRoute
+  '/about/our-story': typeof AboutOurStoryRoute
+  '/media/accreditation': typeof MediaAccreditationRoute
+  '/media/media-kit': typeof MediaMediaKitRoute
+  '/media/press-releases': typeof MediaPressReleasesRoute
+  '/news/$slug': typeof NewsSlugRoute
+  '/speakers/$slug': typeof SpeakersSlugRoute
+  '/summits/$year': typeof SummitsYearRoute
+  '/ticket/$token': typeof TicketTokenRoute
+  '/about/': typeof AboutIndexRoute
+  '/media/': typeof MediaIndexRoute
+  '/news/': typeof NewsIndexRoute
+  '/speakers/': typeof SpeakersIndexRoute
+  '/summits/': typeof SummitsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/become-a-partner': typeof BecomeAPartnerRoute
+  '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/partners': typeof PartnersRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/register': typeof RegisterRoute
+  '/sponsors': typeof SponsorsRoute
+  '/summit': typeof SummitRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/tickets': typeof TicketsRoute
+  '/about/leadership': typeof AboutLeadershipRoute
+  '/about/our-story': typeof AboutOurStoryRoute
+  '/media/accreditation': typeof MediaAccreditationRoute
+  '/media/media-kit': typeof MediaMediaKitRoute
+  '/media/press-releases': typeof MediaPressReleasesRoute
+  '/news/$slug': typeof NewsSlugRoute
+  '/speakers/$slug': typeof SpeakersSlugRoute
+  '/summits/$year': typeof SummitsYearRoute
+  '/ticket/$token': typeof TicketTokenRoute
+  '/about': typeof AboutIndexRoute
+  '/media': typeof MediaIndexRoute
+  '/news': typeof NewsIndexRoute
+  '/speakers': typeof SpeakersIndexRoute
+  '/summits': typeof SummitsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRouteWithChildren
+  '/become-a-partner': typeof BecomeAPartnerRoute
+  '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/media': typeof MediaRouteWithChildren
+  '/news': typeof NewsRouteWithChildren
+  '/partners': typeof PartnersRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/register': typeof RegisterRoute
+  '/speakers': typeof SpeakersRouteWithChildren
+  '/sponsors': typeof SponsorsRoute
+  '/summit': typeof SummitRoute
+  '/summits': typeof SummitsRouteWithChildren
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/tickets': typeof TicketsRoute
+  '/about/leadership': typeof AboutLeadershipRoute
+  '/about/our-story': typeof AboutOurStoryRoute
+  '/media/accreditation': typeof MediaAccreditationRoute
+  '/media/media-kit': typeof MediaMediaKitRoute
+  '/media/press-releases': typeof MediaPressReleasesRoute
+  '/news/$slug': typeof NewsSlugRoute
+  '/speakers/$slug': typeof SpeakersSlugRoute
+  '/summits/$year': typeof SummitsYearRoute
+  '/ticket/$token': typeof TicketTokenRoute
+  '/about/': typeof AboutIndexRoute
+  '/media/': typeof MediaIndexRoute
+  '/news/': typeof NewsIndexRoute
+  '/speakers/': typeof SpeakersIndexRoute
+  '/summits/': typeof SummitsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/become-a-partner'
+    | '/checkout'
+    | '/contact'
+    | '/media'
+    | '/news'
+    | '/partners'
+    | '/privacy-policy'
+    | '/register'
+    | '/speakers'
+    | '/sponsors'
+    | '/summit'
+    | '/summits'
+    | '/terms-and-conditions'
+    | '/tickets'
+    | '/about/leadership'
+    | '/about/our-story'
+    | '/media/accreditation'
+    | '/media/media-kit'
+    | '/media/press-releases'
+    | '/news/$slug'
+    | '/speakers/$slug'
+    | '/summits/$year'
+    | '/ticket/$token'
+    | '/about/'
+    | '/media/'
+    | '/news/'
+    | '/speakers/'
+    | '/summits/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/become-a-partner'
+    | '/checkout'
+    | '/contact'
+    | '/partners'
+    | '/privacy-policy'
+    | '/register'
+    | '/sponsors'
+    | '/summit'
+    | '/terms-and-conditions'
+    | '/tickets'
+    | '/about/leadership'
+    | '/about/our-story'
+    | '/media/accreditation'
+    | '/media/media-kit'
+    | '/media/press-releases'
+    | '/news/$slug'
+    | '/speakers/$slug'
+    | '/summits/$year'
+    | '/ticket/$token'
+    | '/about'
+    | '/media'
+    | '/news'
+    | '/speakers'
+    | '/summits'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/become-a-partner'
+    | '/checkout'
+    | '/contact'
+    | '/media'
+    | '/news'
+    | '/partners'
+    | '/privacy-policy'
+    | '/register'
+    | '/speakers'
+    | '/sponsors'
+    | '/summit'
+    | '/summits'
+    | '/terms-and-conditions'
+    | '/tickets'
+    | '/about/leadership'
+    | '/about/our-story'
+    | '/media/accreditation'
+    | '/media/media-kit'
+    | '/media/press-releases'
+    | '/news/$slug'
+    | '/speakers/$slug'
+    | '/summits/$year'
+    | '/ticket/$token'
+    | '/about/'
+    | '/media/'
+    | '/news/'
+    | '/speakers/'
+    | '/summits/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRouteWithChildren
+  BecomeAPartnerRoute: typeof BecomeAPartnerRoute
+  CheckoutRoute: typeof CheckoutRoute
+  ContactRoute: typeof ContactRoute
+  MediaRoute: typeof MediaRouteWithChildren
+  NewsRoute: typeof NewsRouteWithChildren
+  PartnersRoute: typeof PartnersRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
+  RegisterRoute: typeof RegisterRoute
+  SpeakersRoute: typeof SpeakersRouteWithChildren
+  SponsorsRoute: typeof SponsorsRoute
+  SummitRoute: typeof SummitRoute
+  SummitsRoute: typeof SummitsRouteWithChildren
+  TermsAndConditionsRoute: typeof TermsAndConditionsRoute
+  TicketsRoute: typeof TicketsRoute
+  TicketTokenRoute: typeof TicketTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +406,299 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/become-a-partner': {
+      id: '/become-a-partner'
+      path: '/become-a-partner'
+      fullPath: '/become-a-partner'
+      preLoaderRoute: typeof BecomeAPartnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media': {
+      id: '/media'
+      path: '/media'
+      fullPath: '/media'
+      preLoaderRoute: typeof MediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners': {
+      id: '/partners'
+      path: '/partners'
+      fullPath: '/partners'
+      preLoaderRoute: typeof PartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/speakers': {
+      id: '/speakers'
+      path: '/speakers'
+      fullPath: '/speakers'
+      preLoaderRoute: typeof SpeakersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sponsors': {
+      id: '/sponsors'
+      path: '/sponsors'
+      fullPath: '/sponsors'
+      preLoaderRoute: typeof SponsorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/summit': {
+      id: '/summit'
+      path: '/summit'
+      fullPath: '/summit'
+      preLoaderRoute: typeof SummitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/summits': {
+      id: '/summits'
+      path: '/summits'
+      fullPath: '/summits'
+      preLoaderRoute: typeof SummitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms-and-conditions': {
+      id: '/terms-and-conditions'
+      path: '/terms-and-conditions'
+      fullPath: '/terms-and-conditions'
+      preLoaderRoute: typeof TermsAndConditionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tickets': {
+      id: '/tickets'
+      path: '/tickets'
+      fullPath: '/tickets'
+      preLoaderRoute: typeof TicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about/': {
+      id: '/about/'
+      path: '/'
+      fullPath: '/about/'
+      preLoaderRoute: typeof AboutIndexRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/leadership': {
+      id: '/about/leadership'
+      path: '/leadership'
+      fullPath: '/about/leadership'
+      preLoaderRoute: typeof AboutLeadershipRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/our-story': {
+      id: '/about/our-story'
+      path: '/our-story'
+      fullPath: '/about/our-story'
+      preLoaderRoute: typeof AboutOurStoryRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/media/': {
+      id: '/media/'
+      path: '/'
+      fullPath: '/media/'
+      preLoaderRoute: typeof MediaIndexRouteImport
+      parentRoute: typeof MediaRoute
+    }
+    '/media/accreditation': {
+      id: '/media/accreditation'
+      path: '/accreditation'
+      fullPath: '/media/accreditation'
+      preLoaderRoute: typeof MediaAccreditationRouteImport
+      parentRoute: typeof MediaRoute
+    }
+    '/media/media-kit': {
+      id: '/media/media-kit'
+      path: '/media-kit'
+      fullPath: '/media/media-kit'
+      preLoaderRoute: typeof MediaMediaKitRouteImport
+      parentRoute: typeof MediaRoute
+    }
+    '/media/press-releases': {
+      id: '/media/press-releases'
+      path: '/press-releases'
+      fullPath: '/media/press-releases'
+      preLoaderRoute: typeof MediaPressReleasesRouteImport
+      parentRoute: typeof MediaRoute
+    }
+    '/news/': {
+      id: '/news/'
+      path: '/'
+      fullPath: '/news/'
+      preLoaderRoute: typeof NewsIndexRouteImport
+      parentRoute: typeof NewsRoute
+    }
+    '/news/$slug': {
+      id: '/news/$slug'
+      path: '/$slug'
+      fullPath: '/news/$slug'
+      preLoaderRoute: typeof NewsSlugRouteImport
+      parentRoute: typeof NewsRoute
+    }
+    '/speakers/': {
+      id: '/speakers/'
+      path: '/'
+      fullPath: '/speakers/'
+      preLoaderRoute: typeof SpeakersIndexRouteImport
+      parentRoute: typeof SpeakersRoute
+    }
+    '/speakers/$slug': {
+      id: '/speakers/$slug'
+      path: '/$slug'
+      fullPath: '/speakers/$slug'
+      preLoaderRoute: typeof SpeakersSlugRouteImport
+      parentRoute: typeof SpeakersRoute
+    }
+    '/summits/': {
+      id: '/summits/'
+      path: '/'
+      fullPath: '/summits/'
+      preLoaderRoute: typeof SummitsIndexRouteImport
+      parentRoute: typeof SummitsRoute
+    }
+    '/summits/$year': {
+      id: '/summits/$year'
+      path: '/$year'
+      fullPath: '/summits/$year'
+      preLoaderRoute: typeof SummitsYearRouteImport
+      parentRoute: typeof SummitsRoute
+    }
+    '/ticket/$token': {
+      id: '/ticket/$token'
+      path: '/ticket/$token'
+      fullPath: '/ticket/$token'
+      preLoaderRoute: typeof TicketTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AboutRouteChildren {
+  AboutLeadershipRoute: typeof AboutLeadershipRoute
+  AboutOurStoryRoute: typeof AboutOurStoryRoute
+  AboutIndexRoute: typeof AboutIndexRoute
+}
+
+const AboutRouteChildren: AboutRouteChildren = {
+  AboutLeadershipRoute: AboutLeadershipRoute,
+  AboutOurStoryRoute: AboutOurStoryRoute,
+  AboutIndexRoute: AboutIndexRoute,
+}
+
+const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
+
+interface MediaRouteChildren {
+  MediaAccreditationRoute: typeof MediaAccreditationRoute
+  MediaMediaKitRoute: typeof MediaMediaKitRoute
+  MediaPressReleasesRoute: typeof MediaPressReleasesRoute
+  MediaIndexRoute: typeof MediaIndexRoute
+}
+
+const MediaRouteChildren: MediaRouteChildren = {
+  MediaAccreditationRoute: MediaAccreditationRoute,
+  MediaMediaKitRoute: MediaMediaKitRoute,
+  MediaPressReleasesRoute: MediaPressReleasesRoute,
+  MediaIndexRoute: MediaIndexRoute,
+}
+
+const MediaRouteWithChildren = MediaRoute._addFileChildren(MediaRouteChildren)
+
+interface NewsRouteChildren {
+  NewsSlugRoute: typeof NewsSlugRoute
+  NewsIndexRoute: typeof NewsIndexRoute
+}
+
+const NewsRouteChildren: NewsRouteChildren = {
+  NewsSlugRoute: NewsSlugRoute,
+  NewsIndexRoute: NewsIndexRoute,
+}
+
+const NewsRouteWithChildren = NewsRoute._addFileChildren(NewsRouteChildren)
+
+interface SpeakersRouteChildren {
+  SpeakersSlugRoute: typeof SpeakersSlugRoute
+  SpeakersIndexRoute: typeof SpeakersIndexRoute
+}
+
+const SpeakersRouteChildren: SpeakersRouteChildren = {
+  SpeakersSlugRoute: SpeakersSlugRoute,
+  SpeakersIndexRoute: SpeakersIndexRoute,
+}
+
+const SpeakersRouteWithChildren = SpeakersRoute._addFileChildren(
+  SpeakersRouteChildren,
+)
+
+interface SummitsRouteChildren {
+  SummitsYearRoute: typeof SummitsYearRoute
+  SummitsIndexRoute: typeof SummitsIndexRoute
+}
+
+const SummitsRouteChildren: SummitsRouteChildren = {
+  SummitsYearRoute: SummitsYearRoute,
+  SummitsIndexRoute: SummitsIndexRoute,
+}
+
+const SummitsRouteWithChildren =
+  SummitsRoute._addFileChildren(SummitsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRouteWithChildren,
+  BecomeAPartnerRoute: BecomeAPartnerRoute,
+  CheckoutRoute: CheckoutRoute,
+  ContactRoute: ContactRoute,
+  MediaRoute: MediaRouteWithChildren,
+  NewsRoute: NewsRouteWithChildren,
+  PartnersRoute: PartnersRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
+  RegisterRoute: RegisterRoute,
+  SpeakersRoute: SpeakersRouteWithChildren,
+  SponsorsRoute: SponsorsRoute,
+  SummitRoute: SummitRoute,
+  SummitsRoute: SummitsRouteWithChildren,
+  TermsAndConditionsRoute: TermsAndConditionsRoute,
+  TicketsRoute: TicketsRoute,
+  TicketTokenRoute: TicketTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
