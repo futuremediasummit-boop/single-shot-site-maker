@@ -80,3 +80,7 @@ export function newCode() {
   const b = randomBytes(8);
   return "TK-" + Array.from(b, (x) => alphabet[x % alphabet.length]).join("");
 }
+
+export async function rpc<T>(fn: string, args: unknown): Promise<T> {
+  return (await call(`rpc/${fn}`, { method: "POST", body: JSON.stringify(args) })).json() as Promise<T>;
+}
