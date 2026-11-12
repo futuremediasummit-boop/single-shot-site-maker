@@ -26,6 +26,7 @@ import { Route as SummitRouteImport } from './routes/summit'
 import { Route as SummitsRouteImport } from './routes/summits'
 import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
 import { Route as TicketsRouteImport } from './routes/tickets'
+import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AboutIndexRouteImport } from './routes/about/index'
 import { Route as AboutLeadershipRouteImport } from './routes/about/leadership'
 import { Route as AboutOurStoryRouteImport } from './routes/about/our-story'
@@ -126,6 +127,11 @@ const TicketsRoute = TicketsRouteImport.update({
   path: '/tickets',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerifyRoute = VerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutIndexRoute = AboutIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -215,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/summits': typeof SummitsRouteWithChildren
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/tickets': typeof TicketsRoute
+  '/verify': typeof VerifyRoute
   '/about/leadership': typeof AboutLeadershipRoute
   '/about/our-story': typeof AboutOurStoryRoute
   '/media/accreditation': typeof MediaAccreditationRoute
@@ -243,6 +250,7 @@ export interface FileRoutesByTo {
   '/summit': typeof SummitRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/tickets': typeof TicketsRoute
+  '/verify': typeof VerifyRoute
   '/about/leadership': typeof AboutLeadershipRoute
   '/about/our-story': typeof AboutOurStoryRoute
   '/media/accreditation': typeof MediaAccreditationRoute
@@ -277,6 +285,7 @@ export interface FileRoutesById {
   '/summits': typeof SummitsRouteWithChildren
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/tickets': typeof TicketsRoute
+  '/verify': typeof VerifyRoute
   '/about/leadership': typeof AboutLeadershipRoute
   '/about/our-story': typeof AboutOurStoryRoute
   '/media/accreditation': typeof MediaAccreditationRoute
@@ -312,6 +321,7 @@ export interface FileRouteTypes {
     | '/summits'
     | '/terms-and-conditions'
     | '/tickets'
+    | '/verify'
     | '/about/leadership'
     | '/about/our-story'
     | '/media/accreditation'
@@ -340,6 +350,7 @@ export interface FileRouteTypes {
     | '/summit'
     | '/terms-and-conditions'
     | '/tickets'
+    | '/verify'
     | '/about/leadership'
     | '/about/our-story'
     | '/media/accreditation'
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | '/summits'
     | '/terms-and-conditions'
     | '/tickets'
+    | '/verify'
     | '/about/leadership'
     | '/about/our-story'
     | '/media/accreditation'
@@ -407,6 +419,7 @@ export interface RootRouteChildren {
   SummitsRoute: typeof SummitsRouteWithChildren
   TermsAndConditionsRoute: typeof TermsAndConditionsRoute
   TicketsRoute: typeof TicketsRoute
+  VerifyRoute: typeof VerifyRoute
   TicketTokenRoute: typeof TicketTokenRoute
 }
 
@@ -529,6 +542,13 @@ declare module '@tanstack/react-router' {
       path: '/tickets'
       fullPath: '/tickets'
       preLoaderRoute: typeof TicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify': {
+      id: '/verify'
+      path: '/verify'
+      fullPath: '/verify'
+      preLoaderRoute: typeof VerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about/': {
@@ -719,6 +739,7 @@ const rootRouteChildren: RootRouteChildren = {
   SummitsRoute: SummitsRouteWithChildren,
   TermsAndConditionsRoute: TermsAndConditionsRoute,
   TicketsRoute: TicketsRoute,
+  VerifyRoute: VerifyRoute,
   TicketTokenRoute: TicketTokenRoute,
 }
 export const routeTree = rootRouteImport
