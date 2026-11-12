@@ -30,5 +30,6 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Project rules
-- Organisation content lives in `src/content/site.ts` with empty lists by default; pages must render a designed placeholder when empty — never invent organisational facts (brief forbids fabrication).
+- Live content is managed in the admin and stored in Supabase (see `docs/SUPABASE_SETUP.md`). All Supabase access is server-side (`src/lib/supabase.server.ts`, `src/lib/admin-api.ts`); never put the service-role key in browser code. `src/content/site.ts` is only the starting content and brand text.
+- Organisation content in `src/content/site.ts` has empty lists by default; pages must render a designed placeholder when empty — never invent organisational facts (brief forbids fabrication).
 - Site chrome (Header/Footer) is mounted in `src/routes/__root.tsx`; section routes with children use a layout file returning `<Outlet />` plus an `index.tsx` leaf.

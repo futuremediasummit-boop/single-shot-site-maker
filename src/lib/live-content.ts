@@ -33,7 +33,7 @@ export function applyLive(c: LiveContent | null | undefined) {
 
 let cache: { at: number; value: LiveContent | null } | null = null;
 export async function loadLiveContent(): Promise<LiveContent | null> {
-  if (cache && Date.now() - cache.at < 60_000) return cache.value;
+  if (cache && Date.now() - cache.at < 15_000) return cache.value;
   const value = (await contentBackend.loadPublished()) ?? cache?.value ?? null;
   cache = { at: Date.now(), value };
   applyLive(value);

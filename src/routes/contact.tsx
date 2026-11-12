@@ -12,7 +12,7 @@ export const Route = createFileRoute("/contact")({
           <div className="space-y-6">
             {(["email", "phone", "address"] as const).map((k) => (<div key={k} className="rounded-3xl bg-mint/40 p-5"><p className="eyebrow capitalize text-blue">{k}</p><p className="mt-2 break-words font-display font-semibold">{site.contact[k] ?? "To be announced"}</p></div>))}
           </div>
-          <EnquiryForm submitLabel="Send message" fields={[
+          <EnquiryForm kind="contact" submitLabel="Send message" fields={[
             { name: "name", label: "Full name", required: true }, { name: "email", label: "Email", type: "email", required: true },
             { name: "subject", label: "Enquiry type", type: "select", options: ["General", "Tickets", "Partnership & sponsorship", "Media & press", "Speaking"], required: true }, { name: "organisation", label: "Organisation" },
             { name: "message", label: "Message", type: "textarea", required: true },

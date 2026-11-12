@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState, type ComponentType } from "react";
-import { CalendarDays, ClipboardCheck, Crown, FileText, Globe, Handshake, LayoutDashboard, Megaphone, Newspaper, Pencil, Plus, Rocket, Search, Settings, Sparkles, Ticket, Trash2 } from "lucide-react";
+import { CalendarDays, ClipboardCheck, Crown, FileText, Globe, Handshake, Inbox, LayoutDashboard, LogOut, Megaphone, Newspaper, Pencil, Plus, Rocket, Search, Settings, Sparkles, Ticket, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
+import { AdminLogin } from "@/components/admin/AdminLogin";
+import { CheckInPanel, InboxPanel, TeamPanel } from "@/components/admin/AdminPanels";
 import { ItemEditor, ShareBox } from "@/components/admin/AdminParts";
 import { PublishButton, PublishPanel } from "@/components/admin/PublishPanel";
 import { SettingsEditor } from "@/components/admin/SettingsEditor";
@@ -9,25 +11,17 @@ import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { collections, useAdminStore, type Collection, type CollectionKey, type Item } from "@/lib/admin-store";
+import { collections, useAdminSession, useAdminStore, type AdminAuth, type Collection, type CollectionKey, type Item } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin | Future Media Summit" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: Admin,
 });
 
-type View = "overview" | CollectionKey | "settings" | "publish" | "checkin";
+type View = "overview" | CollectionKey | "settings" | "publish" | "checkin" | "inbox" | "team";
 type Icon = ComponentType<{ className?: string }>;
 const icons: Record<CollectionKey, Icon> = { news: Newspaper, summits: CalendarDays, speakers: Megaphone, partners: Handshake, press: FileText, team: Crown, tickets: Ticket };
 const tints = ["bg-mint/50", "bg-sky/50", "bg-gold/40", "bg-blue/15", "bg-mist"];
-
-const sampleRegs = [
-  { id: "r1", name: "Sample Delegate A", email: "a@example.com", tier: "Standard Delegate" },
-  { id: "r2", name: "Sample Delegate B", email: "b@example.com", tier: "VIP Delegate" },
-  { id: "r3", name: "Sample Delegate C", email: "c@example.com", tier: "Student" },
-  { id: "r4", name: "Sample Delegate D", email: "d@example.com", tier: "Media / Press" },
-];
 
 function blank(col: Collection): Item {
   const it: Item = { id: `${col.key}-${Date.now().toString(36)}`, published: false, updatedAt: 0 };
@@ -37,13 +31,22 @@ function blank(col: Collection): Item {
 }
 
 function Admin() {
-  const store = useAdminStore();
+  const auth = useAdminSession();
+  if (!auth.checked) return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>;
+  if (!auth.session) return <AdminLogin signIn={auth.signIn} />;
+  return <AdminApp auth={auth} />;
+}
+
+function AdminApp({ auth }: { auth: AdminAuth }) {
+  const store = useAdminStore(auth);
+  const me = auth.session!;
+  const isAdmin = (store.role ?? me.role) === "admin";
   const [view, setView] = useState<View>("overview");
   const nav: { id: View; label: string; icon: Icon; count?: number }[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     ...collections.map((c) => ({ id: c.key as View, label: c.label, icon: icons[c.key], count: store.data[c.key].length })),
     { id: "settings", label: "Site settings", icon: Settings },
-    { id: "checkin", label: "Check-in", icon: ClipboardCheck },
+    ...(isAdmin ? [{ id: "checkin" as View, label: "Check-in", icon: ClipboardCheck }, { id: "inbox" as View, label: "Inbox", icon: Inbox }, { id: "team" as View, label: "Team", icon: Users }] : []),
     { id: "publish", label: "Publish", icon: Rocket },
   ];
   const active = collections.find((c) => c.key === view);
@@ -65,19 +68,36 @@ function Admin() {
             </button>
           ))}
         </nav>
-        <div className="relative hidden px-4 pb-8 lg:block"><PublishButton dirty={store.dirty} busy={store.publishing} publish={store.publish} className="w-full" /></div>
+        <div className="relative hidden space-y-3 px-4 pb-8 lg:block">
+          <PublishButton dirty={store.dirty} busy={store.publishing} publish={store.publish} className="w-full" />
+          <div className="rounded-2xl bg-navy-foreground/10 p-3 text-xs">
+            <p className="truncate font-bold" title={me.email}>{me.email}</p>
+            <p className="capitalize text-navy-foreground/60">{store.role ?? me.role}</p>
+            <button type="button" onClick={auth.signOut} className="mt-2 inline-flex items-center gap-1.5 font-bold hover:text-gold"><LogOut className="h-3.5 w-3.5" />Sign out</button>
+          </div>
+        </div>
       </aside>
 
       <main className="min-w-0 px-4 py-6 sm:px-8 lg:py-10">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-3xl border bg-card p-4 shadow-card">
-          <p className="text-sm font-bold">{store.dirty ? <span className="text-destructive">● You have changes that aren’t live yet.</span> : <span className="text-blue">✓ Everything is up to date.</span>}</p>
-          <PublishButton dirty={store.dirty} busy={store.publishing} publish={store.publish} size="sm" />
+          <p className="text-sm font-bold">{store.dirty ? <span className="text-destructive">● You have changes that aren’t live yet.</span> : <span className="text-blue">✓ Everything is up to date.</span>}
+            <span className="ml-3 text-xs font-normal text-muted-foreground">{store.saveState === "saving" ? "Saving…" : store.saveState === "saved" ? "All changes saved" : store.saveState === "conflict" ? "" : "Couldn’t save. Check your connection."}</span></p>
+          <div className="flex items-center gap-2"><Button size="sm" variant="ghost" className="lg:hidden" onClick={auth.signOut}><LogOut /> Sign out</Button><PublishButton dirty={store.dirty} busy={store.publishing} publish={store.publish} size="sm" /></div>
         </div>
-        {!store.ready ? <p className="text-muted-foreground">Loading…</p>
+        {store.saveState === "conflict" && (
+          <div role="alert" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 border-destructive bg-destructive/10 p-4 text-sm font-bold text-destructive">
+            <span>Someone else changed the draft while you were editing. Reload to see their changes (your latest edits here weren’t saved).</span>
+            <Button size="sm" onClick={() => void store.reload()}>Reload</Button>
+          </div>
+        )}
+        {store.loadError ? <div role="alert" className="rounded-3xl bg-destructive/10 p-6 text-destructive"><p className="font-bold">{store.loadError}</p><Button className="mt-4" size="sm" onClick={() => void store.reload()}>Try again</Button></div>
+          : !store.ready ? <p className="text-muted-foreground">Loading…</p>
           : view === "overview" ? <Overview store={store} go={setView} />
           : view === "settings" ? <SettingsEditor settings={store.settings} onSave={store.saveSettings} />
           : view === "publish" ? <PublishPanel dirty={store.dirty} busy={store.publishing} publishedAt={store.publishedAt} publish={store.publish} />
-          : view === "checkin" ? <CheckIn />
+          : view === "checkin" && isAdmin ? <CheckInPanel auth={auth} />
+          : view === "inbox" && isAdmin ? <InboxPanel auth={auth} />
+          : view === "team" && isAdmin ? <TeamPanel auth={auth} selfId={me.userId} />
           : active ? <CollectionView key={active.key} col={active} store={store} /> : null}
       </main>
     </div>
@@ -197,28 +217,6 @@ function CollectionView({ col, store }: { col: Collection; store: Store }) {
         </div>
       )}
       {editing && <ItemEditor key={editing.id} col={col} item={editing} existing={items} open onClose={() => setEditing(null)} onSave={(it) => store.save(col.key, it)} />}
-    </div>
-  );
-}
-
-function CheckIn() {
-  const [done, setDone] = useState<Record<string, boolean>>({});
-  const [q, setQ] = useState("");
-  const list = sampleRegs.filter((r) => `${r.name} ${r.email} ${r.tier}`.toLowerCase().includes(q.toLowerCase()));
-  const n = Object.values(done).filter(Boolean).length;
-  return (
-    <div className="animate-pop space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="text-3xl font-extrabold">Check-in</h1><p className="text-sm text-muted-foreground"><span className="font-bold text-blue">Sample data</span> · {n} of {sampleRegs.length} checked in</p></div>
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email or ticket" aria-label="Search registrations" className="max-w-xs rounded-full" />
-      </div>
-      <div className="h-3 overflow-hidden rounded-full bg-card"><div className="h-full rounded-full bg-mint transition-all duration-500" style={{ width: `${(n / sampleRegs.length) * 100}%` }} /></div>
-      <div className="overflow-x-auto rounded-3xl border bg-card p-3 shadow-card">
-        <Table>
-          <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Ticket</TableHead><TableHead className="text-right">Checked in</TableHead></TableRow></TableHeader>
-          <TableBody>{list.map((r) => (<TableRow key={r.id}><TableCell className="font-bold">{r.name}</TableCell><TableCell className="text-muted-foreground">{r.email}</TableCell><TableCell>{r.tier}</TableCell><TableCell className="text-right"><Switch checked={!!done[r.id]} onCheckedChange={(c) => setDone({ ...done, [r.id]: c })} aria-label={`Check in ${r.name}`} /></TableCell></TableRow>))}</TableBody>
-        </Table>
-      </div>
     </div>
   );
 }

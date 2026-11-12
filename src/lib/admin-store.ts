@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { articles, editions, leadership, partners, pressReleases, site, speakers, stats as siteStats, ticketTypes } from "@/content/site";
-import { contentBackend, type PublishedContent, type SiteSettings } from "@/lib/content-backend";
+import { adminLoad, adminPublish, adminRefresh, adminSaveDraft, adminSignIn, type Role, type Session } from "@/lib/admin-api";
+import type { DraftContent, SiteSettings } from "@/lib/content-backend";
 
 /** Public address used for share links. Change it if the site moves to a custom domain. */
 export const LIVE_ORIGIN = "https://futuremediasummit.lovable.app";
@@ -132,75 +133,178 @@ export const seedSettings = (): SiteSettings => ({
   stats: siteStats.map((x) => ({ label: x.label, value: String(x.value), suffix: x.suffix ?? "" })),
 });
 
-const KEY = "fms-admin-v2";
-type Draft = { data: Data; settings: SiteSettings };
-const snapshot = (d: Draft) => JSON.stringify({ data: d.data, settings: d.settings, }, (k, v) => (k === "updatedAt" ? undefined : v));
+/* ── Sign-in session (kept in this browser; every request is re-checked on the server) ── */
+
+const SESSION_KEY = "fms-admin-session-v1";
+
+export function useAdminSession() {
+  const [session, setSession] = useState<Session | null>(null);
+  const [checked, setChecked] = useState(false);
+  const ref = useRef<Session | null>(null);
+  const refreshing = useRef<Promise<string> | null>(null);
+
+  const keep = useCallback((s: Session | null) => {
+    ref.current = s; setSession(s);
+    try { if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s)); else localStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    try { const raw = localStorage.getItem(SESSION_KEY); if (raw) { const j = JSON.parse(raw) as Session; if (j?.accessToken && j?.refreshToken) { ref.current = j; setSession(j); } } } catch { /* ignore */ }
+    setChecked(true);
+  }, []);
+
+  /** Returns an error message, or null on success. */
+  const signIn = useCallback(async (email: string, password: string): Promise<string | null> => {
+    try {
+      const r = await adminSignIn({ data: { email, password } });
+      if (r.ok) { keep(r.session); return null; }
+      return r.error;
+    } catch { return "Couldn’t reach the server. Check your connection and try again."; }
+  }, [keep]);
+
+  const signOut = useCallback(() => keep(null), [keep]);
+
+  /** A valid access token, refreshing it quietly when it is about to expire. */
+  const getToken = useCallback(async (): Promise<string> => {
+    const s = ref.current;
+    if (!s) throw new Error("Not signed in.");
+    if (s.expiresAt * 1000 - Date.now() > 60_000) return s.accessToken;
+    if (!refreshing.current) {
+      refreshing.current = (async () => {
+        try {
+          const r = await adminRefresh({ data: { refreshToken: s.refreshToken } });
+          if (!r.ok) { keep(null); throw new Error(r.error); }
+          keep(r.session); return r.session.accessToken;
+        } finally { refreshing.current = null; }
+      })();
+    }
+    return refreshing.current;
+  }, [keep]);
+
+  return { session, checked, signIn, signOut, getToken };
+}
+export type AdminAuth = ReturnType<typeof useAdminSession>;
+
+/* ── Draft + publish (all stored in Supabase) ── */
+
+type Draft = DraftContent & { data: Data };
+type SaveState = "saved" | "saving" | "error" | "conflict";
+
+/** Same JSON no matter how the database orders object keys. */
+function canon(v: unknown): string {
+  if (Array.isArray(v)) return `[${v.map(canon).join(",")}]`;
+  if (v && typeof v === "object") return `{${Object.keys(v as object).filter((k) => k !== "updatedAt").sort().map((k) => `${JSON.stringify(k)}:${canon((v as Record<string, unknown>)[k])}`).join(",")}}`;
+  return JSON.stringify(v) ?? "null";
+}
+/** What the public would see: only Published items, plus settings. Used to tell whether there is anything to publish. */
+const liveView = (data: Partial<Record<CollectionKey, Item[]>>, settings: SiteSettings | undefined) =>
+  canon({ data: Object.fromEntries(collections.map((c) => [c.key, (data[c.key] ?? []).filter((i) => i.published)])), settings: settings ?? null });
 
 /**
- * Edits are saved as a DRAFT in this browser as you type. Nothing reaches the public site
- * until Publish is pressed, which hands everything to the content backend (see content-backend.ts).
+ * Your edits save to Supabase automatically as you type (the "Saved" label). Publish copies the saved
+ * draft to the live copy that the public site reads. Nothing is stored in the browser except the sign-in.
  */
-export function useAdminStore() {
+export function useAdminStore(auth: AdminAuth) {
+  const { getToken, signOut } = auth;
   const [data, setData] = useState<Data>(seed);
   const [settings, setSettings] = useState<SiteSettings>(seedSettings);
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState("");
+  const [role, setRole] = useState<Role | null>(null);
   const [publishedSnap, setPublishedSnap] = useState<string | null>(null);
   const [publishedAt, setPublishedAt] = useState<number | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [saveState, setSaveState] = useState<SaveState>("saved");
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      let draft: Draft = { data: seed(), settings: seedSettings() };
-      let hasDraft = false;
-      try {
-        const raw = localStorage.getItem(KEY);
-        if (raw) { const j = JSON.parse(raw) as Partial<Draft>; draft = { data: { ...draft.data, ...(j.data ?? {}) }, settings: { ...draft.settings, ...(j.settings ?? {}) } }; hasDraft = true; }
-      } catch { /* storage unavailable or corrupt: start from the built-in content */ }
-      const live = await contentBackend.loadPublished().catch(() => null);
-      if (!alive) return;
-      if (live) {
-        const liveDraft: Draft = { data: { ...seed(), ...live.data } as Data, settings: { ...seedSettings(), ...(live.settings ?? {}) } };
-        setPublishedSnap(snapshot(liveDraft)); setPublishedAt(live.updatedAt);
-        if (!hasDraft) draft = liveDraft;
-      }
-      setData(draft.data); setSettings(draft.settings); setReady(true);
-    })();
-    return () => { alive = false; };
-  }, []);
+  const latest = useRef<Draft>({ data: seed(), settings: seedSettings() });
+  const version = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queue = useRef<Promise<void>>(Promise.resolve());
+  const state = useRef<SaveState>("saved");
+  const mark = useCallback((s: SaveState) => { state.current = s; setSaveState(s); }, []);
 
-  const persist = useCallback((d: Data, st: SiteSettings) => {
-    try { localStorage.setItem(KEY, JSON.stringify({ data: d, settings: st })); } catch { /* ignore */ }
-  }, []);
+  const load = useCallback(async () => {
+    setReady(false); setLoadError("");
+    try {
+      const token = await getToken();
+      const r = await adminLoad({ data: { token } });
+      if (!r.ok) { if (r.auth) signOut(); setLoadError(r.error); return; }
+      const base = { data: seed(), settings: seedSettings() };
+      const live = r.published;
+      const start: Draft = r.draft
+        ? { data: { ...base.data, ...r.draft.content.data } as Data, settings: { ...base.settings, ...r.draft.content.settings } }
+        : live ? { data: { ...base.data, ...live.data } as Data, settings: { ...base.settings, ...(live.settings ?? {}) } } : base;
+      version.current = r.draft?.version ?? 0;
+      latest.current = start; setData(start.data); setSettings(start.settings);
+      setRole(r.role);
+      setPublishedSnap(live ? liveView(live.data, live.settings) : null);
+      setPublishedAt(live?.updatedAt ?? null);
+      mark("saved");
+      setReady(true);
+    } catch (e) { setLoadError(e instanceof Error ? e.message : "Couldn’t load the admin."); }
+  }, [getToken, signOut, mark]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const persistNow = useCallback(async () => {
+    mark("saving");
+    try {
+      const token = await getToken();
+      const r = await adminSaveDraft({ data: { token, content: latest.current, expectedVersion: version.current } });
+      if (r.ok) { version.current = r.version; mark(timer.current ? "saving" : "saved"); }
+      else if (r.conflict) mark("conflict");
+      else { if (r.auth) signOut(); mark("error"); }
+    } catch { mark("error"); }
+  }, [getToken, signOut, mark]);
+
+  const schedule = useCallback(() => {
+    mark("saving");
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => { timer.current = null; queue.current = queue.current.then(persistNow); }, 700);
+  }, [persistNow, mark]);
+
+  const flush = useCallback(async () => {
+    if (timer.current) { clearTimeout(timer.current); timer.current = null; queue.current = queue.current.then(persistNow); }
+    await queue.current;
+  }, [persistNow]);
+
+  const commit = useCallback((d: Data, st: SiteSettings) => {
+    latest.current = { data: d, settings: st };
+    setData(d); setSettings(st); schedule();
+  }, [schedule]);
 
   const save = useCallback((key: CollectionKey, item: Item) => {
-    const exists = data[key].some((x) => x.id === item.id);
+    const cur = latest.current.data;
+    const exists = cur[key].some((x) => x.id === item.id);
     const stamped = { ...item, updatedAt: Date.now() };
-    const next = { ...data, [key]: exists ? data[key].map((x) => (x.id === item.id ? stamped : x)) : [stamped, ...data[key]] };
-    setData(next); persist(next, settings);
-  }, [data, settings, persist]);
+    commit({ ...cur, [key]: exists ? cur[key].map((x) => (x.id === item.id ? stamped : x)) : [stamped, ...cur[key]] }, latest.current.settings);
+  }, [commit]);
 
   const remove = useCallback((key: CollectionKey, id: string) => {
-    const next = { ...data, [key]: data[key].filter((x) => x.id !== id) };
-    setData(next); persist(next, settings);
-  }, [data, settings, persist]);
+    const cur = latest.current.data;
+    commit({ ...cur, [key]: cur[key].filter((x) => x.id !== id) }, latest.current.settings);
+  }, [commit]);
 
-  const saveSettings = useCallback((st: SiteSettings) => { setSettings(st); persist(data, st); }, [data, persist]);
+  const saveSettings = useCallback((st: SiteSettings) => commit(latest.current.data, st), [commit]);
 
-  const dirty = ready && snapshot({ data, settings }) !== publishedSnap;
+  const dirty = ready && liveView(data, settings) !== publishedSnap;
 
   /** Puts everything marked Published on the live site. Throws a readable Error on failure. */
   const publish = useCallback(async () => {
     setPublishing(true);
     try {
-      const content: Omit<PublishedContent, "v" | "updatedAt"> = { data, settings };
-      const at = await contentBackend.publish(content);
-      setPublishedSnap(snapshot({ data, settings })); setPublishedAt(at);
-      return at;
+      await flush();
+      if (state.current === "conflict") throw new Error("Someone else changed the draft. Reload the page, then publish again.");
+      if (state.current === "error") throw new Error("Your latest edits didn’t save. Check your connection and try again.");
+      const token = await getToken();
+      const r = await adminPublish({ data: { token } });
+      if (!r.ok) { if (r.auth) signOut(); throw new Error(r.error); }
+      setPublishedSnap(liveView(latest.current.data, latest.current.settings)); setPublishedAt(r.updatedAt);
+      return r.updatedAt;
     } finally { setPublishing(false); }
-  }, [data, settings]);
+  }, [flush, getToken, signOut]);
 
-  return { data, settings, ready, save, remove, saveSettings, publish, publishing, dirty, publishedAt };
+  return { data, settings, ready, loadError, role, save, remove, saveSettings, publish, publishing, dirty, publishedAt, saveState, reload: load };
 }
 
 export function copyText(text: string, msg = "Copied!") {

@@ -12,7 +12,7 @@ export const Route = createFileRoute("/media/accreditation")({
         </div>
       </Section>
       <Section>
-        <EnquiryForm submitLabel="Apply for accreditation" fields={[
+        <EnquiryForm kind="accreditation" submitLabel="Apply for accreditation" fields={[
           { name: "name", label: "Full name", required: true }, { name: "outlet", label: "Media outlet", required: true },
           { name: "email", label: "Email", type: "email", required: true }, { name: "phone", label: "Phone", type: "tel", required: true },
           { name: "role", label: "Role", type: "select", options: ["Reporter", "Editor", "Photographer", "Camera operator", "Producer", "Content creator"], required: true }, { name: "portfolio", label: "Portfolio / published work link" },
