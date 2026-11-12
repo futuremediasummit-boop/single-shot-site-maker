@@ -11,16 +11,16 @@ export type PublicTicket = {
 export const formatPrice = (p: number | null) => (p === null ? "TBA" : p === 0 ? "Free" : `KES ${p.toLocaleString("en-KE")}`);
 
 export const getEvents = createServerFn({ method: "GET" }).handler(async (): Promise<PublicEvent[]> => {
-  const { withStore } = await import("./ticketing.server");
-  return withStore((s) =>
-    s.events.map((e) => ({
-      id: e.id, name: e.name, dateLabel: e.dateLabel, venue: e.venue, city: e.city, open: e.open, draft: !!e.draft,
-      ticketTypes: e.ticketTypes.map((t) => {
-        const sold = s.tickets.filter((x) => x.eventId === e.id && x.typeSlug === t.slug && x.status !== "cancelled").length;
-        return { slug: t.slug, name: t.name, blurb: t.blurb, priceKes: t.priceKes, perks: t.perks, soldOut: t.capacity !== null && sold >= t.capacity, accreditationOnly: !!t.accreditationOnly };
-      }),
+  const { loadEvents } = await import("./ticketing.server");
+  const { events, sold } = await loadEvents();
+  return events.map((e) => ({
+    id: e.id, name: e.name, dateLabel: e.date_label, venue: e.venue, city: e.city, open: e.open, draft: e.draft,
+    ticketTypes: e.fms_ticket_types.map((t) => ({
+      slug: t.slug, name: t.name, blurb: t.blurb, priceKes: t.price_kes, perks: t.perks,
+      soldOut: t.capacity !== null && (sold.get(`${e.id}/${t.slug}`) ?? 0) >= t.capacity,
+      accreditationOnly: t.accreditation_only,
     })),
-  );
+  }));
 });
 
 type RegisterInput = { eventId: string; typeSlug: string; name: string; email: string; phone: string };
@@ -28,44 +28,68 @@ type RegisterInput = { eventId: string; typeSlug: string; name: string; email: s
 export const registerTicket = createServerFn({ method: "POST" })
   .validator((d: RegisterInput) => d)
   .handler(async ({ data }): Promise<{ ok: true; token: string } | { ok: false; error: string }> => {
-    const { withStore, newToken, newCode } = await import("./ticketing.server");
+    const { loadEvents, insert, newToken, newCode } = await import("./ticketing.server");
     const name = String(data.name ?? "").trim().slice(0, 120);
     const email = String(data.email ?? "").trim().toLowerCase().slice(0, 200);
     const phone = String(data.phone ?? "").trim().slice(0, 30);
     if (name.length < 2) return { ok: false, error: "Please enter your full name." };
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: "Please enter a valid email address." };
-    return withStore((s) => {
-      const ev = s.events.find((e) => e.id === data.eventId);
-      if (!ev) return { ok: false as const, error: "Please choose an event." };
-      if (!ev.open) return { ok: false as const, error: "Registration for this event is closed." };
-      const type = ev.ticketTypes.find((t) => t.slug === data.typeSlug);
-      if (!type) return { ok: false as const, error: "Please choose a ticket type." };
-      if (type.accreditationOnly) return { ok: false as const, error: "This ticket is issued through media accreditation." };
-      const sold = s.tickets.filter((x) => x.eventId === ev.id && x.typeSlug === type.slug && x.status !== "cancelled").length;
-      if (type.capacity !== null && sold >= type.capacity) return { ok: false as const, error: "Sorry, this ticket type is sold out." };
-      const token = newToken();
-      s.tickets.push({
-        token, code: newCode(), eventId: ev.id, typeSlug: type.slug, name, email, phone,
-        status: type.priceKes === 0 ? "issued" : "pending_payment", checkedInAt: null, createdAt: Date.now(),
-      });
-      return { ok: true as const, token };
+
+    const { events, sold } = await loadEvents();
+    const ev = events.find((e) => e.id === data.eventId);
+    if (!ev) return { ok: false, error: "Please choose an event." };
+    if (!ev.open) return { ok: false, error: "Registration for this event is closed." };
+    const type = ev.fms_ticket_types.find((t) => t.slug === data.typeSlug);
+    if (!type) return { ok: false, error: "Please choose a ticket type." };
+    if (type.accreditation_only) return { ok: false, error: "This ticket is issued through media accreditation." };
+    if (type.capacity !== null && (sold.get(`${ev.id}/${type.slug}`) ?? 0) >= type.capacity) return { ok: false, error: "Sorry, this ticket type is sold out." };
+
+    const token = newToken();
+    await insert("fms_tickets", {
+      token, code: newCode(), event_id: ev.id, type_slug: type.slug, name, email, phone,
+      status: type.price_kes === 0 ? "issued" : "pending_payment",
     });
+    return { ok: true, token };
   });
 
 export const getTicket = createServerFn({ method: "GET" })
   .validator((d: { token: string }) => d)
   .handler(async ({ data }): Promise<PublicTicket | null> => {
-    const { withStore } = await import("./ticketing.server");
+    const { select } = await import("./ticketing.server");
     const token = String(data.token ?? "");
     if (token.length < 10 || token.length > 64) return null;
-    return withStore((s) => {
-      const t = s.tickets.find((x) => x.token === token);
-      const ev = t && s.events.find((e) => e.id === t.eventId);
-      if (!t || !ev) return null;
-      return {
-        code: t.code, name: t.name, status: t.status, checkedIn: t.checkedInAt !== null,
-        typeName: ev.ticketTypes.find((x) => x.slug === t.typeSlug)?.name ?? t.typeSlug,
-        event: { name: ev.name, dateLabel: ev.dateLabel, venue: ev.venue, city: ev.city },
-      };
-    });
+    const rows = await select<{
+      code: string; name: string; status: PublicTicket["status"]; checked_in_at: string | null; type_slug: string;
+      fms_events: { name: string; date_label: string; venue: string; city: string; fms_ticket_types: { slug: string; name: string }[] } | null;
+    }[]>(`fms_tickets?token=eq.${encodeURIComponent(token)}&select=code,name,status,checked_in_at,type_slug,fms_events(name,date_label,venue,city,fms_ticket_types(slug,name))&limit=1`);
+    const t = rows[0];
+    if (!t || !t.fms_events) return null;
+    const ev = t.fms_events;
+    return {
+      code: t.code, name: t.name, status: t.status, checkedIn: t.checked_in_at !== null,
+      typeName: ev.fms_ticket_types.find((x) => x.slug === t.type_slug)?.name ?? t.type_slug,
+      event: { name: ev.name, dateLabel: ev.date_label, venue: ev.venue, city: ev.city },
+    };
+  });
+
+export type VerifyResult = {
+  result: "valid" | "already_used" | "wrong_event" | "not_paid" | "cancelled" | "not_found" | "bad_pin" | "error";
+  name?: string; typeName?: string; code?: string; eventName?: string; at?: string;
+};
+
+/** Door check-in. Needs the CHECKIN_PIN server secret. Accepts a ticket URL, token or TK-code. */
+export const verifyTicket = createServerFn({ method: "POST" })
+  .validator((d: { eventId: string; value: string; pin: string }) => d)
+  .handler(async ({ data }): Promise<VerifyResult> => {
+    const { rpc } = await import("./ticketing.server");
+    const { createHash, timingSafeEqual } = await import("node:crypto");
+    const expected = process.env["CHECKIN_PIN"];
+    if (!expected) return { result: "error" };
+    const h = (s: string) => createHash("sha256").update(s).digest();
+    if (!timingSafeEqual(h(String(data.pin ?? "")), h(expected))) return { result: "bad_pin" };
+    const raw = String(data.value ?? "").trim();
+    const value = (raw.split("/").filter(Boolean).pop() ?? "").split(/[?#]/)[0]!.slice(0, 64);
+    if (value.length < 6 || !data.eventId) return { result: "not_found" };
+    try { return await rpc<VerifyResult>("fms_check_in", { p_event: data.eventId, p_token: value }); }
+    catch (e) { console.error(e); return { result: "error" }; }
   });

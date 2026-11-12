@@ -1,83 +1,86 @@
 // Server-only. Never import this from a component: use the server functions in ./ticketing.ts.
-// Storage: ONE JSON file (data/ticketing.json). No database needed. Set TICKETING_DATA_DIR to move it.
-import { promises as fs } from "node:fs";
-import path from "node:path";
+// Storage: Supabase Postgres via PostgREST (plain fetch, so it runs on Cloudflare Workers).
+// Needs two server secrets: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Never expose them to the browser.
 import { randomBytes } from "node:crypto";
 import { ticketTypes as siteTicketTypes, upcomingSummit } from "@/content/site";
 
-export type TicketTypeRec = {
-  slug: string; name: string; blurb: string;
-  /** KES. 0 = free (ticket issued instantly). null = price to be announced. */
-  priceKes: number | null;
-  perks: string[];
-  /** null = unlimited */
-  capacity: number | null;
-  /** True for press tickets: only issued through accreditation approval. */
-  accreditationOnly?: boolean;
+export type TicketTypeRow = {
+  slug: string; name: string; blurb: string; price_kes: number | null; perks: string[];
+  capacity: number | null; accreditation_only: boolean; sort: number;
 };
-export type EventRec = {
-  id: string; name: string; dateLabel: string; startsAt?: string; venue: string; city: string;
-  open: boolean; draft?: boolean; ticketTypes: TicketTypeRec[];
+export type EventRow = {
+  id: string; name: string; date_label: string; venue: string; city: string; open: boolean; draft: boolean;
+  fms_ticket_types: TicketTypeRow[];
 };
-export type TicketStatus = "issued" | "pending_payment" | "cancelled";
-export type TicketRec = {
-  token: string; code: string; eventId: string; typeSlug: string;
-  name: string; email: string; phone: string;
-  status: TicketStatus; checkedInAt: number | null; createdAt: number;
-};
-export type Store = { v: 1; events: EventRec[]; tickets: TicketRec[] };
 
-const DIR = process.env["TICKETING_DATA_DIR"] || path.join(process.cwd(), "data");
-const FILE = path.join(DIR, "ticketing.json");
-
-function seed(): Store {
-  const s = upcomingSummit;
-  return {
-    v: 1,
-    tickets: [],
-    events: [{
-      id: "future-media-summit",
-      name: s ? `Future Media Summit ${s.year}` : "Future Media Summit",
-      dateLabel: s?.dateLabel ?? "Date to be confirmed",
-      ...(s?.startsAt ? { startsAt: s.startsAt } : {}),
-      venue: s?.venue ?? "Venue to be confirmed",
-      city: s?.city ?? "City to be confirmed",
-      open: true,
-      draft: true,
-      ticketTypes: siteTicketTypes.map((t) => ({
-        slug: t.slug, name: t.name, blurb: t.blurb, perks: t.perks,
-        priceKes: 0, capacity: null, accreditationOnly: t.slug === "media",
-      })),
-    }],
-  };
+function cfg() {
+  const url = process.env["SUPABASE_URL"];
+  const key = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+  if (!url || !key) throw new Error("Ticketing storage not configured: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
+  return { url: url.replace(/\/$/, ""), key };
 }
 
-let queue: Promise<unknown> = Promise.resolve();
-/** Runs one read-modify-write at a time so two registrations never overwrite each other. */
-export function withStore<T>(fn: (s: Store) => T | Promise<T>): Promise<T> {
-  const run = queue.then(async () => {
-    let store: Store;
-    try { store = JSON.parse(await fs.readFile(FILE, "utf8")) as Store; }
-    catch { store = seed(); }
-    const before = JSON.stringify(store);
-    const out = await fn(store);
-    const after = JSON.stringify(store);
-    if (after !== before || !(await exists())) {
-      await fs.mkdir(DIR, { recursive: true });
-      const tmp = `${FILE}.${process.pid}.tmp`;
-      await fs.writeFile(tmp, after);
-      await fs.rename(tmp, FILE);
-    }
-    return out;
+async function call(path: string, init: RequestInit & { prefer?: string } = {}): Promise<Response> {
+  const { url, key } = cfg();
+  const { prefer, ...rest } = init;
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    ...rest,
+    headers: {
+      apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json",
+      ...(prefer ? { Prefer: prefer } : {}), ...(rest.headers ?? {}),
+    },
   });
-  queue = run.catch(() => undefined);
-  return run;
+  if (!res.ok) throw new Error(`Supabase ${res.status} on ${path.split("?")[0]}: ${await res.text()}`);
+  return res;
 }
-async function exists() { try { await fs.access(FILE); return true; } catch { return false; } }
+
+export async function select<T>(path: string): Promise<T> {
+  return (await call(path)).json() as Promise<T>;
+}
+export async function insert(table: string, rows: unknown, prefer = "return=minimal"): Promise<void> {
+  await call(table, { method: "POST", body: JSON.stringify(rows), prefer });
+}
+
+let seeded = false;
+/** Creates the first event from src/content/site.ts if the table is empty. Safe to race (ignore-duplicates). */
+export async function ensureSeed(): Promise<void> {
+  if (seeded) return;
+  const existing = await select<{ id: string }[]>("fms_events?select=id&limit=1");
+  if (existing.length === 0) {
+    const s = upcomingSummit;
+    const id = "future-media-summit";
+    await insert("fms_events?on_conflict=id", [{
+      id, name: s ? `Future Media Summit ${s.year}` : "Future Media Summit",
+      date_label: s?.dateLabel ?? "Date to be confirmed", starts_at: s?.startsAt ?? null,
+      venue: s?.venue ?? "Venue to be confirmed", city: s?.city ?? "City to be confirmed",
+      open: true, draft: true,
+    }], "resolution=ignore-duplicates,return=minimal");
+    await insert("fms_ticket_types?on_conflict=event_id,slug", siteTicketTypes.map((t, i) => ({
+      event_id: id, slug: t.slug, name: t.name, blurb: t.blurb, perks: t.perks,
+      price_kes: 0, capacity: null, accreditation_only: t.slug === "media", sort: i,
+    })), "resolution=ignore-duplicates,return=minimal");
+  }
+  seeded = true;
+}
+
+export async function loadEvents(): Promise<{ events: EventRow[]; sold: Map<string, number> }> {
+  await ensureSeed();
+  const [events, counts] = await Promise.all([
+    select<EventRow[]>("fms_events?select=*,fms_ticket_types(*)&order=created_at.asc"),
+    select<{ event_id: string; type_slug: string; sold: number }[]>("fms_ticket_counts?select=*"),
+  ]);
+  const sold = new Map(counts.map((c) => [`${c.event_id}/${c.type_slug}`, c.sold]));
+  for (const e of events) e.fms_ticket_types.sort((a, b) => a.sort - b.sort);
+  return { events, sold };
+}
 
 export function newToken() { return randomBytes(16).toString("base64url"); }
 export function newCode() {
   const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no look-alike characters
   const b = randomBytes(8);
   return "TK-" + Array.from(b, (x) => alphabet[x % alphabet.length]).join("");
+}
+
+export async function rpc<T>(fn: string, args: unknown): Promise<T> {
+  return (await call(`rpc/${fn}`, { method: "POST", body: JSON.stringify(args) })).json() as Promise<T>;
 }
